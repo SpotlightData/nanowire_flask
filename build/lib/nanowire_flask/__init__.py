@@ -113,9 +113,13 @@ class ImagesAPI(View):
         try:
             answer = run_image(request, self.app)
             
-            response={'status':'ok', 'predictions':answer}
+            if not isinstance(answer, dict):
+                
+                raise Exception("PLUGIN MUST RETURN A DICTIONARY, RETURNED {0}".format(str(type(answer))))
             
-            response_pic = jsonpickle.encode(response)
+            answer['status'] = 'ok'
+            
+            response_pic = jsonpickle.encode(answer)
             #everything has gone fine, return the results in a nice response
             return Response(response=response_pic, status=200, mimetype="application/json")
         

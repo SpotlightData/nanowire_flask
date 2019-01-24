@@ -21,3 +21,16 @@ At the moment it can only handle images however it will soon be expanded to hand
 * bmp
 * tif
 * ppm
+
+
+**Notes for advanced users**
+
+``mount_Image_function
+
+**Parameters**
+
+* `function`:- The function to be mounted on the API. The function must take img and variable as arguments and return a dictionary
+* `debug_mode`:- Activate or deactivate debug mode. When active will return full traceback from API when an error occurs during processing.Input must be boolean
+* `host`:- default is '0.0.0.0'. Set the IP address to host the API on
+* `port`:- default 5000. Set the port to host the API on
+* `path`:- default '/model/predict'. Set the path for the API 
