@@ -1,4 +1,5 @@
-README.txt
+README.md
+VERSION
 setup.py
 nanowire_flask/__init__.py
 nanowire_flask.egg-info/PKG-INFO
