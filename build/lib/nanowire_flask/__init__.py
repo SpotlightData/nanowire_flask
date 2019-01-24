@@ -69,7 +69,7 @@ def check_function_is_valid(function):
         return True
 
 
-class mounted_Image_function(object):
+class mount_Image_function(object):
     
     def __init__(self, function, debug_mode=False, host='0.0.0.0', port=5000, path='/model/predict'):
         
