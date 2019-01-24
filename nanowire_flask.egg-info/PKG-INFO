@@ -1,16 +1,16 @@
 Metadata-Version: 1.0
 Name: nanowire-flask
-Version: 0.0.13
+Version: 0.0.17
 Summary: Tool for creating nanowire tools with the flask structure.
 Home-page: https://github.com/SpotlightData/nanowire_flask
 Author: Stuart Bowe
 Author-email: stuart@spotlightdata.co.uk
 License: MIT
-Description: **Nanowire flask**
-        
+Description: Nanowire flask
+        ==============
         This library is designed to allow a python developer to easily create a nanowire plugin using the flask APIs structure.
         
-        The function you mount, using the class ImagesAPI, must have the arguments ``img`` and ``variables`` if you want initialise a model or other variables when the sever starts you may make the function to be mounted into a function of a class which is initiated with the desired variables. In this case your variables will be ``self``, ``img`` and ``variables``.
+        The function you mount, using the class ImagesAPI, must have the arguments ``img`` and ``variables`` if you want initialise a model or other variables when the sever starts you may make the function to be mounted into a function of a class which is initiated with the des$
         You should expect ``img`` to be a PIL RGB image object and ``variables`` to be a dictionary containing the variables sent to the plugin in the curl request.
         
         The curl requests for images may be formatted 2 ways. The first involves sending the image as a file attached to the curl request. For example:
@@ -29,6 +29,20 @@ Description: **Nanowire flask**
         * bmp
         * tif
         * ppm
+        
+        
+        Notes for advanced users
+        ------------------------
+        
+        **mount_Image_function**
+        
+        *Parameters* 
+        
+        * *function* :- The function to be mounted on the API. The function must take img and variable as arguments and return a dictionary 
+        * *debug_mode*:- Activate or deactivate debug mode. When active will return full traceback from API when an error occurs during processing.Input must be boolean.
+        * *host*:- default is '0.0.0.0'. Set the IP address to host the API on
+        * *port*:- default 5000. Set the port to host the API on
+        * *path*:- default '/model/predict'. Set the path for the API
         
 Keywords: flask,API,nanowire,spotlight data
 Platform: UNKNOWN
