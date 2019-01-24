@@ -31,7 +31,7 @@ Notes for advanced users
 *Parameters* 
 
 * *function* :- The function to be mounted on the API. The function must take img and variable as arguments and return a dictionary 
-* *debug_mode* :sup:`optional`::- default is False. Set to true to activate debug mode. When active will return full traceback from API when an error occurs during processing.Input must be boolean.
-* *host* :sup:`optional`::- default is '0.0.0.0'. Set the IP address to host the API on
-* *port* :sup:`optional`::- default 5000. Set the port to host the API on
-* *path* :sup:`optional`::- default '/model/predict'. Set the path for the API
+* *debug_mode* :sup:`optional`:- default is False. Set to true to activate debug mode. When active will return full traceback from API when an error occurs during processing.Input must be boolean.
+* *host* :sup:`optional`:- default is '0.0.0.0'. Set the IP address to host the API on
+* *port* :sup:`optional`:- default 5000. Set the port to host the API on
+* *path* :sup:`optional`:- default '/model/predict'. Set the path for the API
