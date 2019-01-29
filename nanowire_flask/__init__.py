@@ -44,9 +44,10 @@ def run_image(r, app):
     else:
         #extract the variables info sent to the plugin
         variables_info = r.json
-        
+
         #extract the image from the sent url
         im_request = requests.get(variables_info['contentUrl'])
+
         im = Image.open(BytesIO(im_request.content)).convert("RGB")
 
     #apply the function to the image
