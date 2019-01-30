@@ -2,7 +2,7 @@ Nanowire flask
 ==============
 This library is designed to allow a python developer to easily create a nanowire plugin using the flask APIs structure.
 
-The function you mount, using the class ImagesAPI, must have the arguments ``img`` and ``variables`` if you want initialise a model or other variables when the sever starts you may make the function to be mounted into a function of a class which is initiated with the des$
+The function you mount for image plugins, using the class ``ImagesAPI``, must have the arguments ``img`` and ``variables`` if you want initialise a model or other variables when the sever starts you may make the function to be mounted into a function of a class which is initiated with the des$
 You should expect ``img`` to be a PIL RGB image object and ``variables`` to be a dictionary containing the variables sent to the plugin in the curl request.
 
 The curl requests for images may be formatted 2 ways. The first involves sending the image as a file attached to the curl request. For example:
@@ -21,6 +21,15 @@ At the moment it can only handle images however it will soon be expanded to hand
 * bmp
 * tif
 * ppm
+
+The process for text is similar except that you should use the class TextAPI and the function should only use the arguments ``text`` and ``variables``. You may either post a document containing the text using the command
+
+``curl -F "doc=@./doc1.txt" -XPOST http://0.0.0.0:5000/model/predict?deactivate_ngrams=True``
+
+
+or the raw text can be sent using:
+
+``curl -X POST -H "Content-Type:application/json" -d '{"content":"Example text about whichever subject you're interested in", "deactivate_ngrams"="True"}' http://0.0.0.0:5000/model/predict``
 
 
 Notes for advanced users

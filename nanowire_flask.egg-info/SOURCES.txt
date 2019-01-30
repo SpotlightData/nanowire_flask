@@ -5,4 +5,5 @@ nanowire_flask/__init__.py
 nanowire_flask.egg-info/PKG-INFO
 nanowire_flask.egg-info/SOURCES.txt
 nanowire_flask.egg-info/dependency_links.txt
+nanowire_flask.egg-info/requires.txt
 nanowire_flask.egg-info/top_level.txt

@@ -30,5 +30,10 @@ setup(
     long_destription_content_type='text/markdown',
     data_files=[
         ('.', ['VERSION'])
-    ]
+    ],
+    install_requires=[
+	'Pillow>=5.4.1',
+	'requests>=2.21.0',
+	'Flask-API>=1.1',
+	'jsonpickle>=1.1']
 )
