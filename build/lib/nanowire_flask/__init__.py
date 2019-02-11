@@ -25,7 +25,101 @@ from flask.views import View
 
 from flask_api import FlaskAPI
 
+
+#memory and cpu usage collection tools
+
+import sys
+import os
+from datetime import datetime
+import psutil
+import threading
+import socket
+
+py_version = int(sys.version[0])
+
+
+if py_version == 2:
+    import Queue as queue
+else:
+    import queue
+
+
 import inspect
+
+import logging
+
+logging.basicConfig(format='%(message)s')
+
+logger = logging.getLogger('NANOWIRE_FLASK_TOOL')
+
+logger.setLevel(level=logging.DEBUG)
+
+
+
+
+
+##############################
+### ADVANCED LOGGING TOOLS ###
+##############################
+
+class usage_collection(object):
+    
+    def __init__(self):
+        
+        #times are collected as a series of strings
+        self.times_queue = queue.Queue()
+        #CPUs are collected in % usage
+        self.cpus_queue = queue.Queue()
+        #memory queue is in MB
+        self.mem_queue = queue.Queue()
+        self.running = False
+    
+    def collection_thread(self):
+        
+        #logger.info("Background thread is STARTING")
+        self.running = True
+        
+        while self.running:
+            
+            self.times_queue.put_nowait(str(datetime.now().time()))
+            self.cpus_queue.put_nowait(psutil.cpu_percent())
+            self.mem_queue.put_nowait(psutil.Process(os.getpid()).memory_info().rss/1e6)
+            time.sleep(0.01)
+            #logger.info("Background thread is RUNNING")
+            
+        #logger.info("Background thread is CLOSING")
+            
+            
+    def finish_collection(self):
+        
+        self.running = False
+
+        
+        times = []
+        cpus = []
+        mems = []
+        while True:
+            try:
+                times.append(self.times_queue.get_nowait())
+                cpus.append(self.cpus_queue.get_nowait())
+                mems.append(self.mem_queue.get_nowait())
+
+            except:
+                break
+            
+        max_mem = max(mems)
+        max_cpu = max(cpus)
+        
+        return [max_mem, max_cpu]
+    
+    def start_collection(self):
+        
+        threading.Thread(target=self.collection_thread).start()
+
+
+##############################
+### IMAGE PROCESSING TOOLS ###
+##############################
 
 def run_image(r, app): 
  
@@ -34,7 +128,7 @@ def run_image(r, app):
     #if the user has sent a url then we want to extract that URL like this
     if r.headers['Content-Type'] != 'application/json':
     
-        variables_info = dict(r.values)
+        variables_info = dict(r.args)
                 
         # convert string of image data to uint8
         im = Image.open(r.files['image']).convert("RGB")
@@ -49,9 +143,16 @@ def run_image(r, app):
         im_request = requests.get(variables_info['contentUrl'])
 
         im = Image.open(BytesIO(im_request.content)).convert("RGB")
+        
+        variables_info.pop('contentUrl', None)
 
     #apply the function to the image
-    out_predictions = app.config['function'](im, variables_info)
+    
+    if inspect.getargspec(app.config['function'])[0][-1] == 'variables':
+        out_predictions = app.config['function'](im, variables_info)
+    else:
+        out_predictions = app.config['function'](im)
+
     
     print("Took {0:0.2f} seconds".format(time.time()-start_time))
     
@@ -72,7 +173,14 @@ def check_Image_function_is_valid(function):
 
 class mount_Image_function(object):
     
-    def __init__(self, function, debug_mode=False, host='0.0.0.0', port=5000, path='/model/predict'):
+    def __init__(self, function, host='0.0.0.0', port=5000, path='/model/predict'):
+        
+        
+        debug_mode = False
+        if 'PYTHON_DEBUG' in os.environ:
+            if os.environ['PYTHON_DEBUG'].lower() == 'true':
+                
+                debug_mode = True
         
         self.app = FlaskAPI(__name__)
 
@@ -90,6 +198,13 @@ class mount_Image_function(object):
             
             #define the class we're mounting onto post
             tool = ImagesAPI
+            
+            #if we're in debug mode we will need to collect usage statistics
+            if debug_mode:
+                tool.debug_mode = True
+                tool.collection_tool = usage_collection()
+            else:
+                tool.debug_mode = False
             
             #store a link to the app in tool
             tool.app = self.app
@@ -112,11 +227,28 @@ class ImagesAPI(View):
     def dispatch_request(self):
         
         try:
+            
+            #start usage stats collection
+            if self.debug_mode:
+                [max_mem, max_cpu] = self.collection_tool.finish_collection()
+            
+            #run the function
             answer = run_image(request, self.app)
             
+            #check a dictionary has been returned
             if not isinstance(answer, dict):
-                
                 raise Exception("PLUGIN MUST RETURN A DICTIONARY, RETURNED {0}".format(str(type(answer))))
+            
+            #grab usage stats
+            if self.debug_mode:
+                [max_mem, max_cpu] = self.collection_tool.finish_collection()
+                
+            #store the usage stats
+            if self.debug_mode:
+                
+                answer['max_cpu'] = max_cpu
+                answer['max_mem'] = max_mem
+                answer['containerID'] = socket.gethostname()
             
             answer['status'] = 'ok'
             
@@ -142,6 +274,7 @@ class ImagesAPI(View):
 ###########################################
 ### Functions for running a text plugin ###
 ###########################################
+    
 
 def run_text(r, app): 
  
@@ -150,8 +283,7 @@ def run_text(r, app):
     #if the user has sent a url then we want to extract that URL like this
     if r.headers['Content-Type'] != 'application/json':
     
-        variables_info = dict(r.values)
-                
+        variables_info = dict(r.args)
         # convert string of image data to uint8
         text = r.files['doc'].read().decode()
 
@@ -160,13 +292,43 @@ def run_text(r, app):
     else:
         #extract the variables info sent to the plugin
         variables_info = r.json
+        
+        #make sure content url is the right case
+        #variables_info = map_contenturl2casecorrect(variables_info)
 
-        #extract the image from the sent url
-        text = variables_info['content']
+        if 'content' in variables_info.keys():
+
+            #extract the image from the sent url
+            text = variables_info['content']
+            
+            variables_info.pop('content', None)
+            
+        elif 'contentUrl' in variables_info.keys():
+            
+            response = requests.get(variables_info['contentUrl'])
+                     
+            text = response.content.decode()
+            
+            if response.status_code == 404:
+                
+                raise Exception("FILE MISSING, CHECK URL OF LINK")
+            
+            variables_info.pop('contentUrl', None)
+            
+        else:
+            raise Exception("COULD NOT FIND 'contentUrl' OR 'content' IN REQUEST")
 
     #apply the function to the image
-    out_predictions = app.config['function'](text, variables_info)
-    
+    if inspect.getargspec(app.config['function'])[0][-1] == 'variables':
+        out_predictions = app.config['function'](text, variables_info)
+    else:
+        out_predictions = app.config['function'](text)
+        
+        
+    if 'taskID' in variables_info.keys():
+        
+        out_predictions['taskID'] = variables_info['taskID']
+        
     print("Took {0:0.2f} seconds".format(time.time()-start_time))
     
     return out_predictions
@@ -186,8 +348,14 @@ def check_text_function_is_valid(function):
 
 class mount_text_function(object):
     
-    def __init__(self, function, debug_mode=False, host='0.0.0.0', port=5000, path='/model/predict'):
+    def __init__(self, function, host='0.0.0.0', port=5000, path='/model/predict'):
         
+        debug_mode = False
+        if 'PYTHON_DEBUG' in os.environ:
+            if os.environ['PYTHON_DEBUG'].lower() == 'true':
+                
+                debug_mode = True
+                
         self.app = FlaskAPI(__name__)
 
         self.app.config['debug'] = debug_mode
@@ -205,6 +373,12 @@ class mount_text_function(object):
             #define the class we're mounting onto post
             tool = TextAPI
             
+            #if we're in debug mode we will need to collect usage statistics
+            if debug_mode:
+                tool.debug_mode = True
+                tool.collection_tool = usage_collection()
+            else:
+                tool.debug_mode = False
             #store a link to the app in tool
             tool.app = self.app
             
@@ -224,17 +398,34 @@ class TextAPI(View):
     #this is a post method
     methods = ['POST']
     
+    
+    
     def dispatch_request(self):
         
         try:
+            
+            #start collecting usage stats
+            if self.debug_mode:
+                self.collection_tool.start_collection()
+            
             #run the mounted function
             answer = run_text(request, self.app)
             
+            #collect the usage stats
+            if self.debug_mode:
+                [max_mem, max_cpu] = self.collection_tool.finish_collection()
+            
+            #check a dictionary has been returned
             if not isinstance(answer, dict):
-                
                 raise Exception("PLUGIN MUST RETURN A DICTIONARY, RETURNED {0}".format(str(type(answer))))
             
             answer['status'] = 'ok'
+            
+            #save the usage stats
+            if self.debug_mode:
+                answer['max_cpu'] = max_cpu
+                answer['max_mem'] = max_mem
+                answer['containerID'] = socket.gethostname()
             
             response_pic = jsonpickle.encode(answer)
             #everything has gone fine, return the results in a nice response

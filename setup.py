@@ -35,5 +35,6 @@ setup(
 	'Pillow>=5.4.1',
 	'requests>=2.21.0',
 	'Flask-API>=1.1',
-	'jsonpickle>=1.1']
+	'jsonpickle>=1.1',
+	'psutil>=5.5.0']
 )
