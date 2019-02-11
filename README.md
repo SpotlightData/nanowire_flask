@@ -44,13 +44,13 @@ Notes for advanced users
 * *port* :sup:`optional`:- default 5000. Set the port to host the API on
 * *path* :sup:`optional`:- default '/model/predict'. Set the path for the API
 
-*Notes on debug mode*
+**Notes on debug mode**
 
 In order to activate debug mode the environmental variable `PYTHON_DEBUG` must be set to true.
 
 Activating debug mode will return the maximum memory usage in MB and the maximum CPU usage as a percentage along with the data. This data collection may affect the performance of the plugin so debug mode should be deactivated in production code.
 Debug mode will also mean that any errors encountered whilst running the function will also return a full traceback in the returned JSON. Debug mode will also result in the docker container ID being returned in the output JSON.
 
-*Notes of taskID*
+**Notes on taskID**
 
 If the post contains ``taskID`` as an argument the taskID given will also be returned in the output JSON.
