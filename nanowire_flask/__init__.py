@@ -30,7 +30,6 @@ from flask_api import FlaskAPI
 
 import sys
 import os
-from datetime import datetime
 import psutil
 import threading
 import socket
@@ -66,8 +65,7 @@ class usage_collection(object):
     
     def __init__(self):
         
-        #times are collected as a series of strings
-        self.times_queue = queue.Queue()
+
         #CPUs are collected in % usage
         self.cpus_queue = queue.Queue()
         #memory queue is in MB
@@ -81,7 +79,6 @@ class usage_collection(object):
         
         while self.running:
             
-            self.times_queue.put_nowait(str(datetime.now().time()))
             self.cpus_queue.put_nowait(psutil.cpu_percent())
             self.mem_queue.put_nowait(psutil.Process(os.getpid()).memory_info().rss/1e6)
             time.sleep(0.01)
@@ -94,13 +91,10 @@ class usage_collection(object):
         
         self.running = False
 
-        
-        times = []
         cpus = []
         mems = []
         while True:
             try:
-                times.append(self.times_queue.get_nowait())
                 cpus.append(self.cpus_queue.get_nowait())
                 mems.append(self.mem_queue.get_nowait())
 
@@ -152,9 +146,13 @@ def run_image(r, app):
         out_predictions = app.config['function'](im, variables_info)
     else:
         out_predictions = app.config['function'](im)
+        
+        
+    if not isinstance(out_predictions, dict):
+        raise Exception("FUNCTION MUST RETURN A DICTIONARY")
 
     
-    print("Took {0:0.2f} seconds".format(time.time()-start_time))
+    #print("Took {0:0.2f} seconds".format(time.time()-start_time))
     
     return out_predictions
 
@@ -200,7 +198,7 @@ class mount_Image_function(object):
             tool = ImagesAPI
             
             #if we're in debug mode we will need to collect usage statistics
-            if debug_mode:
+            if True:
                 tool.debug_mode = True
                 tool.collection_tool = usage_collection()
             else:
@@ -229,8 +227,9 @@ class ImagesAPI(View):
         try:
             
             #start usage stats collection
-            if self.debug_mode:
-                [max_mem, max_cpu] = self.collection_tool.finish_collection()
+            if True:
+                [max_mem, max_cpu] = self.collection_tool.start_collection()
+                start_time = time.time()
             
             #run the function
             answer = run_image(request, self.app)
@@ -240,15 +239,16 @@ class ImagesAPI(View):
                 raise Exception("PLUGIN MUST RETURN A DICTIONARY, RETURNED {0}".format(str(type(answer))))
             
             #grab usage stats
-            if self.debug_mode:
+            if True:
                 [max_mem, max_cpu] = self.collection_tool.finish_collection()
                 
             #store the usage stats
-            if self.debug_mode:
+            if True:
                 
                 answer['max_cpu'] = max_cpu
                 answer['max_mem'] = max_mem
                 answer['containerID'] = socket.gethostname()
+                answer['time_taken'] = round(time.time() - start_time, 2)
             
             answer['status'] = 'ok'
             
@@ -277,8 +277,6 @@ class ImagesAPI(View):
     
 
 def run_text(r, app): 
- 
-    start_time = time.time()
 
     #if the user has sent a url then we want to extract that URL like this
     if r.headers['Content-Type'] != 'application/json':
@@ -324,12 +322,15 @@ def run_text(r, app):
     else:
         out_predictions = app.config['function'](text)
         
-        
+    if not isinstance(out_predictions, dict):
+        raise Exception("FUNCTION MUST RETURN A DICTIONARY")
+    
+    #return the taskID if it's there
     if 'taskID' in variables_info.keys():
         
         out_predictions['taskID'] = variables_info['taskID']
         
-    print("Took {0:0.2f} seconds".format(time.time()-start_time))
+    #print("Took {0:0.2f} seconds".format(time.time()-start_time))
     
     return out_predictions
 
@@ -374,7 +375,7 @@ class mount_text_function(object):
             tool = TextAPI
             
             #if we're in debug mode we will need to collect usage statistics
-            if debug_mode:
+            if True:
                 tool.debug_mode = True
                 tool.collection_tool = usage_collection()
             else:
@@ -405,14 +406,17 @@ class TextAPI(View):
         try:
             
             #start collecting usage stats
-            if self.debug_mode:
+            if True:
+                #logger.info("STARTING DATA COLLECTION")
                 self.collection_tool.start_collection()
+                start_time = time.time()
             
             #run the mounted function
             answer = run_text(request, self.app)
             
             #collect the usage stats
-            if self.debug_mode:
+            if True:
+                #logger.info("FINISHING DATA COLLECTION")
                 [max_mem, max_cpu] = self.collection_tool.finish_collection()
             
             #check a dictionary has been returned
@@ -422,10 +426,11 @@ class TextAPI(View):
             answer['status'] = 'ok'
             
             #save the usage stats
-            if self.debug_mode:
+            if True:
                 answer['max_cpu'] = max_cpu
                 answer['max_mem'] = max_mem
                 answer['containerID'] = socket.gethostname()
+                answer['time_taken'] = round(time.time() - start_time, 2)
             
             response_pic = jsonpickle.encode(answer)
             #everything has gone fine, return the results in a nice response
