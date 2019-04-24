@@ -29,7 +29,7 @@ The curl request for text is similar to that used for images except that it may 
 
 or the raw text can be sent using:
 
-``curl -X POST -H "Content-Type:application/json" -d '{"content":"Example text about whichever subject you're interested in", "deactivate_ngrams"="True"}' http://0.0.0.0:5000/model/predict``
+``curl -X POST -H "Content-Type:application/json" -d '{"text":"Example text about whichever subject you're interested in", "deactivate_ngrams"="True"}' http://0.0.0.0:5000/model/predict``
 
 This library will eventually be expanded to be able to handle video, sound and arbitary files however for now it is limited to text and images.
 

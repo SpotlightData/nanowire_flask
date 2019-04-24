@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: nanowire-flask
-Version: 0.0.69
+Version: 0.0.73
 Summary: Tool for creating nanowire tools with the flask structure.
 Home-page: https://github.com/SpotlightData/nanowire_flask
 Author: Stuart Bowe
@@ -13,7 +13,7 @@ Description: Nanowire flask
         The function you mount for image plugins, using the function ``mount_Image_function``  must have the arguments ``img`` and ``variables`` if you want initialise a model or other variables when the sever starts you may make the function to be mounted into a function of a 
         class which is initiated with the function ``mount_Image_function``. You should expect ``img`` to be a PIL RGB image object and ``variables`` to be a dictionary containing the variables sent to the plugin in the curl request.
         
-        The function for mounting a text based plugin is similar however it is called ``mount_text_function`` and expects the arguments ``text`` and ``variables``.
+        The function for mounting a text based plugin is similar however it is called ``mount_text_function`` and expects the arguments ``text`` (a string) and ``variables``.
         
         The curl requests for images may be formatted 2 ways. The first involves sending the image as a file attached to the curl request. For example:
         
@@ -41,6 +41,8 @@ Description: Nanowire flask
         
         This library will eventually be expanded to be able to handle video, sound and arbitary files however for now it is limited to text and images.
         
+        The API you create will also return maximum memory usage (in MB), maximum cpu usage (in %) and time taken (in seconds) when processing a given API call.
+        
         Notes for advanced users
         ------------------------
         
@@ -48,17 +50,25 @@ Description: Nanowire flask
         
         *Parameters* 
         
-        * *function* :- The function to be mounted on the API. The function must take img and variables as arguments when processing images and text and variables when processing text. The function must return a dictionary 
-        * *host* :sup:`optional`:- default is '0.0.0.0'. Set the IP address to host the API on
-        * *port* :sup:`optional`:- default 5000. Set the port to host the API on
-        * *path* :sup:`optional`:- default '/model/predict'. Set the path for the API
+        * *function* :- The function to be mounted on the API. The function must take img and variables as arguments when processing images. The function must return a dictionary. 
+        * *host* :sup:`optional`:- default is '0.0.0.0'. Set the IP address to host the API on.
+        * *port* :sup:`optional`:- default 5000. Set the port to host the API on.
+        * *path* :sup:`optional`:- default '/model/predict'. Set the path for the API.
+        
+        **mount_text_function**
+        
+        *Parameters*
+        * *function* :- The function to be mounted on the API. The function must take text and variables as arguments when processing text. The function must return a dictionary. 
+        * *host* :sup:`optional`:- default is '0.0.0.0'. Set the IP address to host the API on.
+        * *port* :sup:`optional`:- default 5000. Set the port to host the API on.
+        * *path* :sup:`optional`:- default '/model/predict'. Set the path for the API.
+        
         
         **Notes on debug mode**
         
         In order to activate debug mode the environmental variable `PYTHON_DEBUG` must be set to true.
         
-        Activating debug mode will return the maximum memory usage in MB, the time the mounted function took to run and the maximum CPU usage as a percentage along with the data. This data collection may affect the performance of the plugin so debug mode should be deactivated 
-        in production code. Debug mode will also mean that any errors encountered whilst running the function will also return a full traceback in the returned JSON. Debug mode will also result in the docker container ID being returned in the output JSON.
+        Debug mode will mean that any errors encountered whilst running the function will also give a full traceback of the error in the returned JSON.
         
         **Notes on taskID**
         

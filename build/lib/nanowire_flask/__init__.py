@@ -13,6 +13,8 @@ Created on Wed Jan 23 13:12:51 2019
 import time
 from PIL import Image
 
+import unicodedata as uni
+
 import requests
 
 from io import BytesIO
@@ -53,9 +55,19 @@ logger = logging.getLogger('NANOWIRE_FLASK_TOOL')
 
 logger.setLevel(level=logging.DEBUG)
 
+###################
+### Admin tools ###
+###################
 
-
-
+def scrub_newlines(txt):
+    
+    out = ""
+    for char in txt:
+        if uni.category(char) != "Cc":
+            
+            out += char
+            
+    return out
 
 ##############################
 ### ADVANCED LOGGING TOOLS ###
@@ -100,10 +112,15 @@ class usage_collection(object):
 
             except:
                 break
-            
-        max_mem = max(mems)
-        max_cpu = max(cpus)
+        if len(mems) > 0:
         
+            max_mem = max(mems)
+            max_cpu = max(cpus)
+            
+        else:
+            max_mem = psutil.Process(os.getpid()).memory_info().rss/1e6
+            max_cpu = psutil.cpu_percent()
+            
         return [max_mem, max_cpu]
     
     def start_collection(self):
@@ -249,6 +266,15 @@ class ImagesAPI(View):
                 answer['max_mem'] = max_mem
                 answer['containerID'] = socket.gethostname()
                 answer['time_taken'] = round(time.time() - start_time, 2)
+                if os.path.exists("/VERSION"):
+                    with open("/VERSION", "r") as f:
+                        version = scrub_newlines(f.read())    
+                    answer["image_version"] = version
+                    
+                if os.path.exists("/IMAGE_NAME"):
+                    with open("/IMAGE_NAME", "r") as f:
+                        img_name = scrub_newlines(f.read())
+                    answer['image_name'] = img_name
             
             answer['status'] = 'ok'
             
@@ -277,8 +303,6 @@ class ImagesAPI(View):
     
 
 def run_text(r, app): 
- 
-    start_time = time.time()
 
     #if the user has sent a url then we want to extract that URL like this
     if r.headers['Content-Type'] != 'application/json':
@@ -433,6 +457,16 @@ class TextAPI(View):
                 answer['max_mem'] = max_mem
                 answer['containerID'] = socket.gethostname()
                 answer['time_taken'] = round(time.time() - start_time, 2)
+                
+                if os.path.exists("/VERSION"):
+                    with open("/VERSION", "r") as f:
+                        version = scrub_newlines(f.read())    
+                    answer["image_version"] = version
+                    
+                if os.path.exists("/IMAGE_NAME"):
+                    with open("/IMAGE_NAME", "r") as f:
+                        img_name = scrub_newlines(f.read())
+                    answer['image_name'] = img_name
             
             response_pic = jsonpickle.encode(answer)
             #everything has gone fine, return the results in a nice response
