@@ -8,8 +8,6 @@ Created on Wed Jan 23 13:12:51 2019
 
 #nanowire flask plugin tool
 
-
-
 import time
 from PIL import Image
 
@@ -27,6 +25,7 @@ from flask.views import View
 
 from flask_api import FlaskAPI
 
+import pandas as pd
 
 #memory and cpu usage collection tools
 
@@ -425,8 +424,6 @@ class TextAPI(View):
     #this is a post method
     methods = ['POST']
     
-    
-    
     def dispatch_request(self):
         
         try:
@@ -484,6 +481,3 @@ class TextAPI(View):
             
             #something has gone wrong return the bad result in this response
             return Response(response=response_pic, status=400, mimetype='application/json')
-
-
-

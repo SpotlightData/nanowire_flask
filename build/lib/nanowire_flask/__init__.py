@@ -320,12 +320,12 @@ def run_text(r, app):
         #make sure content url is the right case
         #variables_info = map_contenturl2casecorrect(variables_info)
 
-        if 'content' in variables_info.keys():
+        if 'text' in variables_info.keys():
 
             #extract the image from the sent url
-            text = variables_info['content']
+            text = variables_info['text']
             
-            variables_info.pop('content', None)
+            variables_info.pop('text', None)
             
         elif 'contentUrl' in variables_info.keys():
             
@@ -340,7 +340,7 @@ def run_text(r, app):
             variables_info.pop('contentUrl', None)
             
         else:
-            raise Exception("COULD NOT FIND 'contentUrl' OR 'content' IN REQUEST")
+            raise Exception("COULD NOT FIND 'contentUrl' OR 'text' IN REQUEST")
 
     #apply the function to the image
     if inspect.getargspec(app.config['function'])[0][-1] == 'variables':
