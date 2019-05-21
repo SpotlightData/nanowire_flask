@@ -31,14 +31,30 @@ or the raw text can be sent using:
 
 ``curl -X POST -H "Content-Type:application/json" -d '{"text":"Example text about whichever subject you're interested in", "deactivate_ngrams"="True"}' http://0.0.0.0:5000/model/predict``
 
-This library will eventually be expanded to be able to handle video, sound and arbitary files however for now it is limited to text and images.
+The library may also accept CSV objects using command like
+
+``curl -F "csv=@./example.csv" -XPOST http://0.0.0.0:5000/model/predict?ignore_col=text``
+
+alternativly a link to a csv may be sent such as:
+
+``curl -X POST -H "Content-Type:application/json" -d '{"contentUrl":"http://localhost:8000/example.csv", "ignore_col":"dates"}' http://0.0.0.0:5000/model/predict``
+
+The library may also accept JSON objects using commands such as
+
+``curl -X POST -H "Content-Type:application/json" -d '{"this":"is", "an":"example"}' http://0.0.0.0:5000/model/predict``
+
+alternativly a csv file may be sent from a server
+
+``curl -X POST -H "Content-Type:application/json" -d '{"contentUrl":"http://localhost:8000/example.json"}' http://0.0.0.0:5000/model/predict``
+
+This library will eventually be expanded to be able to handle video, sound and arbitary files however for now it is limited to text, images, csv files and json files.
 
 The API you create will also return maximum memory usage (in MB), maximum cpu usage (in %) and time taken (in seconds) when processing a given API call.
 
 Notes for advanced users
 ------------------------
 
-**mount_Image_function**
+**image_tools.mount_Image_function**
 
 *Parameters* 
 
@@ -47,10 +63,27 @@ Notes for advanced users
 * *port* :sup:`optional`:- default 5000. Set the port to host the API on.
 * *path* :sup:`optional`:- default '/model/predict'. Set the path for the API.
 
-**mount_text_function**
+**text_tools.mount_text_function**
 
 *Parameters*
 * *function* :- The function to be mounted on the API. The function must take text and variables as arguments when processing text. The function must return a dictionary. 
+* *host* :sup:`optional`:- default is '0.0.0.0'. Set the IP address to host the API on.
+* *port* :sup:`optional`:- default 5000. Set the port to host the API on.
+* *path* :sup:`optional`:- default '/model/predict'. Set the path for the API.
+
+**csv_tools.mount_csv_function**
+
+*Parameters*
+* *function* :- The function to be mounted on the API. The function must take df (a pandas dataframe) and variables (a dictionary) as arguments when processing a csv. The function must return a dictionary. 
+* *host* :sup:`optional`:- default is '0.0.0.0'. Set the IP address to host the API on.
+* *port* :sup:`optional`:- default 5000. Set the port to host the API on.
+* *path* :sup:`optional`:- default '/model/predict'. Set the path for the API.
+
+
+**json_tools.mount_json_function**
+
+*Parameters*
+* *function* :- The function to be mounted on the API. The function must take inputJSON as an argument. The function must return a dictionary. 
 * *host* :sup:`optional`:- default is '0.0.0.0'. Set the IP address to host the API on.
 * *port* :sup:`optional`:- default 5000. Set the port to host the API on.
 * *path* :sup:`optional`:- default '/model/predict'. Set the path for the API.
