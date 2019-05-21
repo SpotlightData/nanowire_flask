@@ -31,6 +31,7 @@ import pandas as pd
 
 import sys
 import os
+import re
 import psutil
 import threading
 import socket
@@ -53,6 +54,16 @@ logging.basicConfig(format='%(message)s')
 logger = logging.getLogger('NANOWIRE_FLASK_TOOL')
 
 logger.setLevel(level=logging.DEBUG)
+
+mod_path = os.path.abspath(__path__[0])
+
+files = os.listdir(os.path.join(mod_path, '../'))
+
+files[:] = [x for x in files if 'nanowire_flask' in x]
+
+files[:] = [x for x in files if x != 'nanowire_flask']
+
+__version__ = re.findall(r'([0-9]*\.[0-9]*\.[0-9]*)', files[0])[0]
 
 ###################
 ### Admin tools ###

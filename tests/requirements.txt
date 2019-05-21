@@ -1,6 +1,9 @@
+numpy
 flask
 flask-API
 pandas
 requests
 Pillow
-nanowire_flask
+nanowire_flask==0.0.92
+qrcode
+pyzbar

@@ -1,9 +1,13 @@
 README.md
-VERSION
 setup.py
+./nanowire_flask/VERSION
 nanowire_flask/__init__.py
 nanowire_flask.egg-info/PKG-INFO
 nanowire_flask.egg-info/SOURCES.txt
 nanowire_flask.egg-info/dependency_links.txt
 nanowire_flask.egg-info/requires.txt
 nanowire_flask.egg-info/top_level.txt
+nanowire_flask/csv_tools/__init__.py
+nanowire_flask/image_tools/__init__.py
+nanowire_flask/json_tools/__init__.py
+nanowire_flask/text_tools/__init__.py

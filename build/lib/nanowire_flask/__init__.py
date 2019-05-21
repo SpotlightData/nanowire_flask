@@ -8,8 +8,6 @@ Created on Wed Jan 23 13:12:51 2019
 
 #nanowire flask plugin tool
 
-
-
 import time
 from PIL import Image
 
@@ -27,11 +25,13 @@ from flask.views import View
 
 from flask_api import FlaskAPI
 
+import pandas as pd
 
 #memory and cpu usage collection tools
 
 import sys
 import os
+import re
 import psutil
 import threading
 import socket
@@ -54,6 +54,16 @@ logging.basicConfig(format='%(message)s')
 logger = logging.getLogger('NANOWIRE_FLASK_TOOL')
 
 logger.setLevel(level=logging.DEBUG)
+
+mod_path = os.path.abspath(__path__[0])
+
+files = os.listdir(os.path.join(mod_path, '../'))
+
+files[:] = [x for x in files if 'nanowire_flask' in x]
+
+files[:] = [x for x in files if x != 'nanowire_flask']
+
+__version__ = re.findall(r'([0-9]*\.[0-9]*\.[0-9]*)', files[0])[0]
 
 ###################
 ### Admin tools ###
@@ -425,8 +435,6 @@ class TextAPI(View):
     #this is a post method
     methods = ['POST']
     
-    
-    
     def dispatch_request(self):
         
         try:
@@ -484,6 +492,3 @@ class TextAPI(View):
             
             #something has gone wrong return the bad result in this response
             return Response(response=response_pic, status=400, mimetype='application/json')
-
-
-
