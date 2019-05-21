@@ -307,6 +307,49 @@ class csv_server_test_case(unittest.TestCase):
 
         
         
+#test the JSON processing tools
+class JSON_server_test_case(unittest.TestCase):
+    
+    def test_from_text_JSON(self):
+        
+        text_target = 'http://0.0.0.0:5003/model/predict'
+
+        
+        d = json.dumps({'example':'of', 
+                'a':[1,2,3],
+                'json':{'to':'be', 'loaded':'in'}
+                })
+        
+        heads ={"Content-Type":"application/json"}
+        
+        r = requests.post(text_target, headers = heads, data=d)
+        
+        out = r.json()
+
+        
+        self.assertTrue(out['example'] == 'of')
+        self.assertTrue(out['json']['to'] == 'be')
+        self.assertTrue(len(out['a']) == 3)
+        
+    def test_from_server_JSON(self):
+        
+        text_target = 'http://0.0.0.0:5003/model/predict'
+
+        json_url = 'http://0.0.0.0:8001/example.json'
+        
+        d = json.dumps({"contentUrl":json_url,
+                "clean_text":0})
+        
+        heads ={"Content-Type":"application/json"}
+        
+        r = requests.post(text_target, headers = heads, data=d)
+        
+        out = r.json()
+
+        self.assertTrue(out['example'] == 'of')
+        self.assertTrue(out['json']['to'] == 'be')
+        self.assertTrue(len(out['a']) == 3)
+        
 ####################################
 ### End of unit test definitions ###
 ####################################
@@ -326,6 +369,16 @@ df_dict = {'uuid':['t-001', 't-002', 't-003'], 'texts':['example', 'text', 'No3'
 example_df = pd.DataFrame(df_dict)
 
 example_df.to_csv('example.csv', index=False)
+
+#generate an example json
+example_dict = {'example':'of', 
+                'a':[1,2,3],
+                'json':{'to':'be', 'loaded':'in'}
+                }
+
+with open("example.json", 'w') as f:
+    f.write(json.dumps(example_dict))
+
 
 #start the file hosting server
 httpd = HTTPServer(('localhost', 8001), SimpleHTTPRequestHandler)
@@ -351,6 +404,10 @@ run_csv_cmd = 'python3 ./csv_server.py &'
 result = os.system(run_csv_cmd)
 
 print("STARTING CSV SERVER")
+
+run_JSON_cmd = 'python3 ./json_server.py &'
+
+result = os.system(run_JSON_cmd)
 
 #wait for the server to start
 time.sleep(5)
