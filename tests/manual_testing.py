@@ -304,6 +304,48 @@ class csv_server_test_case(unittest.TestCase):
         self.assertTrue('shape' in out.keys())
         
         self.assertTrue(out['shape'] == [2, 3])
+        
+        
+    def test_from_file_xlsx(self):
+        
+        text_target = 'http://0.0.0.0:5002/model/predict'
+        
+        files = {'xlsx': ('./example.xlsx', open('./example.xlsx', 'rb'))}
+        
+        r = requests.post(text_target + '?threshold=0.5', files=files)
+        
+        out = r.json()
+        
+        self.assertTrue('text' in out.keys())
+        
+        self.assertTrue('variables' in out.keys())
+        
+        self.assertTrue('shape' in out.keys())
+        
+        self.assertTrue(out['shape'] == [2, 3])
+        
+    def test_from_server_xlsx(self):
+        
+        text_target = 'http://0.0.0.0:5002/model/predict'
+        
+        csv_url = 'http://0.0.0.0:8001/example.xlsx'
+        
+        d = json.dumps({"contentUrl":csv_url,
+                "clean_text":1})
+        
+        heads ={"Content-Type":"application/json"}
+        
+        r = requests.post(text_target, headers = heads, data=d)
+        
+        out = r.json()
+        
+        self.assertTrue('text' in out.keys())
+        
+        self.assertTrue('variables' in out.keys())
+        
+        self.assertTrue('shape' in out.keys())
+        
+        self.assertTrue(out['shape'] == [2, 3])
 
         
         
@@ -368,7 +410,11 @@ df_dict = {'uuid':['t-001', 't-002', 't-003'], 'texts':['example', 'text', 'No3'
 
 example_df = pd.DataFrame(df_dict)
 
+#write the example csv
 example_df.to_csv('example.csv', index=False)
+
+#write the example xlsx file
+example_df.to_excel('example.xlsx', index=False)
 
 #generate an example json
 example_dict = {'example':'of', 

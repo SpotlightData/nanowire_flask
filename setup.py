@@ -39,5 +39,6 @@ setup(
 	'Flask-API>=1.1',
 	'jsonpickle>=1.1',
 	'psutil>=5.5.0',
-    'pandas>=0.23.4']
+    'pandas>=0.23.4',
+    'xlrd>=1.0.0']
 )

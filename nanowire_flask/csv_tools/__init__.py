@@ -53,7 +53,10 @@ def run_csv(r, app):
         variables_info = dict(r.args)
                 
         # convert string of image data to uint8
-        df = pd.read_csv(r.files['csv'])
+        if 'csv' in r.files:
+            df = pd.read_csv(r.files['csv'])
+        elif 'xlsx' in r.files:
+            df = pd.read_excel(r.files['xlsx'])
 
     #if the user has sent an image then lets extract that image and store it as
     #a PIL
@@ -63,8 +66,12 @@ def run_csv(r, app):
 
         #extract the image from the sent url
         im_request = requests.get(variables_info['contentUrl'])
-
-        df = pd.read_csv(BytesIO(im_request.content))
+        
+        bytes_obj = BytesIO(im_request.content)
+        try:
+            df = pd.read_csv(bytes_obj)
+        except:
+            df = pd.read_excel(bytes_obj)
         
         variables_info.pop('contentUrl', None)
 
