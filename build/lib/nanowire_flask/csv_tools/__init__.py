@@ -33,9 +33,7 @@ import socket
 
 py_version = int(sys.version[0])
 
-
 import inspect
-
 
 from nanowire_flask import scrub_newlines, usage_collection
 
@@ -43,20 +41,41 @@ from nanowire_flask import scrub_newlines, usage_collection
 ##################################
 ### Functions for a csv plugin ###
 ##################################
-            
+
+
+def process_input_var(txt):
+    
+    if ',' in txt:
+        
+        out = txt.split(',')
+        
+        #out[0] = out[0].replace('"', '')
+        #out[-1] = out[-1].replace('"', '')
+        
+    else:
+        out = txt
+        
+    return out
+
 def run_csv(r, app): 
  
 
     #if the user has sent a url then we want to extract that URL like this
     if r.headers['Content-Type'] != 'application/json':
-    
-        variables_info = dict(r.args)
-                
+
+        variables_info = {}
+        
+        for val in r.values:
+
+            variables_info[val] = process_input_var(r.values[val])
+        
         # convert string of image data to uint8
         if 'csv' in r.files:
-            df = pd.read_csv(r.files['csv'])
+            df = pd.read_csv(r.files['csv'], dtype='unicode')
         elif 'xlsx' in r.files:
             df = pd.read_excel(r.files['xlsx'])
+            
+        
 
     #if the user has sent an image then lets extract that image and store it as
     #a PIL
@@ -69,9 +88,9 @@ def run_csv(r, app):
         
         bytes_obj = BytesIO(im_request.content)
         try:
-            df = pd.read_csv(bytes_obj)
+            df = pd.read_csv(bytes_obj, dtype='unicode')
         except:
-            df = pd.read_excel(bytes_obj)
+            df = pd.read_excel(variables_info['contentUrl'])
         
         variables_info.pop('contentUrl', None)
 

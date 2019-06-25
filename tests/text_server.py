@@ -22,8 +22,6 @@ def test_text_function(text, variables):
     
     print("RECEVED REQUEST")
     
-    time.sleep(1)
-    
     out = {"text":text,
            "variables":variables}
     

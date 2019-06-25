@@ -19,7 +19,7 @@ def test_json_function(inputJSON):
     
     print("RECEVED REQUEST")
     
-    time.sleep(1)
+    time.sleep(0.2)
     
     out = inputJSON
     

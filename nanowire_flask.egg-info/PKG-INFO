@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: nanowire-flask
-Version: 0.0.99
+Version: 0.0.122
 Summary: Tool for creating nanowire tools with the flask structure.
 Home-page: https://github.com/SpotlightData/nanowire_flask
 Author: Stuart Bowe
@@ -43,7 +43,11 @@ Description: Nanowire flask
         
         ``curl -F "csv=@./example.csv" -XPOST http://0.0.0.0:5000/model/predict?ignore_col=text``
         
-        alternativly a link to a csv may be sent such as:
+        a xlsx file may be sent in the same way:
+        
+        ``curl -F "xlsx=@./example.xlsx" -XPOST http://0.0.0.0:5000/model/predict?ignore_col=text``
+        
+        alternativly a link to a csv or xlsx file may be sent such as:
         
         ``curl -X POST -H "Content-Type:application/json" -d '{"contentUrl":"http://localhost:8000/example.csv", "ignore_col":"dates"}' http://0.0.0.0:5000/model/predict``
         

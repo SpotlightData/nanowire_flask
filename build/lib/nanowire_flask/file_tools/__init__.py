@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon May 20 11:32:34 2019
+Created on Mon May 20 11:32:33 2019
 
 @author: stuart
 """
 
-#nanowire_flask csv tools
-
-
+#nanowire_flask image tools
 
 import time
-import pandas as pd
+from PIL import Image
+
 import requests
 
 from io import BytesIO
@@ -23,6 +22,8 @@ from flask import request, Response
 from flask.views import View
 
 from flask_api import FlaskAPI
+
+import urllib
 
 #memory and cpu usage collection tools
 
@@ -37,45 +38,33 @@ import inspect
 
 from nanowire_flask import scrub_newlines, usage_collection
 
+def pullAndSave(url):
 
-##################################
-### Functions for a csv plugin ###
-##################################
+    filename = url.split("/")[-1]
+
+    urllib.request.urlretrieve(url)
+
+    return filename
 
 
-def process_input_var(txt):
-    
-    if ',' in txt:
-        
-        out = txt.split(',')
-        
-        #out[0] = out[0].replace('"', '')
-        #out[-1] = out[-1].replace('"', '')
-        
-    else:
-        out = txt
-        
-    return out
-
-def run_csv(r, app): 
- 
+def run_file(r, app): 
 
     #if the user has sent a url then we want to extract that URL like this
     if r.headers['Content-Type'] != 'application/json':
-
-        variables_info = {}
-        
-        for val in r.values:
-
-            variables_info[val] = process_input_var(r.values[val])
-        
+    
+        variables_info = dict(r.args)
+                
         # convert string of image data to uint8
-        if 'csv' in r.files:
-            df = pd.read_csv(r.files['csv'], dtype='unicode')
-        elif 'xlsx' in r.files:
-            df = pd.read_excel(r.files['xlsx'])
-            
         
+        #filename = pullAndSave(r.files['file'])
+        print("+++++")
+        print(type(r.files['file']))
+        print(dir(r.files['file']))
+        print(r.files['file'].filename)
+        print("+++++")
+        
+        filename = r.files['file'].filename
+        r.files['file'].save(filename)
 
     #if the user has sent an image then lets extract that image and store it as
     #a PIL
@@ -84,22 +73,18 @@ def run_csv(r, app):
         variables_info = r.json
 
         #extract the image from the sent url
-        im_request = requests.get(variables_info['contentUrl'])
-        
-        bytes_obj = BytesIO(im_request.content)
-        try:
-            df = pd.read_csv(bytes_obj, dtype='unicode')
-        except:
-            df = pd.read_excel(variables_info['contentUrl'])
-        
+        filename = pullAndSave(variables_info['contentUrl'])
+
         variables_info.pop('contentUrl', None)
 
     #apply the function to the image
     
     if inspect.getargspec(app.config['function'])[0][-1] == 'variables':
-        out_predictions = app.config['function'](df, variables_info)
+        out_predictions = app.config['function'](filename, variables_info)
     else:
-        out_predictions = app.config['function'](df)
+        out_predictions = app.config['function'](filename)
+
+    os.remove(filename)
         
         
     if not isinstance(out_predictions, dict):
@@ -111,11 +96,11 @@ def run_csv(r, app):
     return out_predictions
 
 #function to check if the user defined function is as it should be
-def check_csv_function_is_valid(function):
+def check_file_function_is_valid(function):
 
     args = inspect.getargspec(function)[0]
 
-    if args != ['df', 'variables'] and args != ['self', 'df', 'variables'] and args != ['df'] and args != ['self', 'df']:
+    if args != ['filename', 'variables'] and args != ['self', 'filename', 'variables'] and args != ['filename'] and args != ['self', 'filename']:
         
         return False
         
@@ -123,7 +108,7 @@ def check_csv_function_is_valid(function):
         return True
 
 
-class mount_csv_function(object):
+class mount_file_function(object):
     
     def __init__(self, function, host='0.0.0.0', port=5000, path='/model/predict'):
         
@@ -146,10 +131,10 @@ class mount_csv_function(object):
         
         self.path = path
         
-        if check_csv_function_is_valid(self.app.config['function']):
+        if check_file_function_is_valid(self.app.config['function']):
             
             #define the class we're mounting onto post
-            tool = csvAPI
+            tool = filesAPI
             
             #if we're in debug mode we will need to collect usage statistics
             if True:
@@ -172,21 +157,20 @@ class mount_csv_function(object):
             raise Exception("BAD ARGUMENTS SENT TO FUNCTION")
 
     
-class csvAPI(View):
+class filesAPI(View):
     
     methods = ['POST']
     
     def dispatch_request(self):
         
         try:
-            
             #start usage stats collection
             if True:
                 self.collection_tool.start_collection()
                 start_time = time.time()
             
             #run the function
-            answer = run_csv(request, self.app)
+            answer = run_file(request, self.app)
             
             #check a dictionary has been returned
             if not isinstance(answer, dict):
@@ -198,7 +182,6 @@ class csvAPI(View):
                 
             #store the usage stats
             if True:
-                
                 answer['max_cpu'] = max_cpu
                 answer['max_mem'] = max_mem
                 answer['containerID'] = socket.gethostname()

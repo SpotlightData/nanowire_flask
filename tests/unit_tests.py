@@ -22,13 +22,13 @@ import pandas as pd
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 
-#test the text processing tools
+#test the text processing tools with the requests library
 class text_server_test_case(unittest.TestCase):
     
     def test_text_json_example(self):
 
         
-        text_target = 'http://192.168.128.19:5000/model/predict'
+        text_target = 'http://0.0.0.0:5000/model/predict'
         
         
         d = json.dumps({"text":"Example of text.",
@@ -92,7 +92,7 @@ class text_server_test_case(unittest.TestCase):
         
         self.assertTrue(out['text'] == t)
     
-#test the image processing tools
+#test the image processing tools with the requests library
 class image_server_test_case(unittest.TestCase):
     
     def test_from_file_png(self):
@@ -261,7 +261,7 @@ class image_server_test_case(unittest.TestCase):
         
         self.assertTrue(out['text'] == "Example image")
         
-#test the csv processing tools
+#test the csv processing tools with the requests library
 class csv_server_test_case(unittest.TestCase):
     
     def test_from_file_csv(self):
@@ -343,13 +343,15 @@ class csv_server_test_case(unittest.TestCase):
         
         self.assertTrue('variables' in out.keys())
         
+        self.assertTrue(out['variables']['clean_text'] == 1)
+        
         self.assertTrue('shape' in out.keys())
         
         self.assertTrue(out['shape'] == [2, 3])
 
         
         
-#test the JSON processing tools
+#test the JSON processing tools with the requests library
 class JSON_server_test_case(unittest.TestCase):
     
     def test_from_text_JSON(self):
@@ -391,6 +393,286 @@ class JSON_server_test_case(unittest.TestCase):
         self.assertTrue(out['example'] == 'of')
         self.assertTrue(out['json']['to'] == 'be')
         self.assertTrue(len(out['a']) == 3)
+
+
+
+#test the text processing tools with curl requests run in a shell
+class test_text_server_test_case_cmd_line(unittest.TestCase):
+    
+    def test_text_cmd_line_send_txt_direct(self):
+
+        
+        text_target = 'http://0.0.0.0:5000/model/predict'
+        
+        
+        post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{\"text\":\"Example of text.\", \"threshold\":0.5}'"
+        
+        post_cmd += ' '
+        post_cmd += text_target
+        
+        out = os.popen(post_cmd).read()
+        
+        out = json.loads(out)
+        
+        self.assertTrue('text' in out.keys())
+        self.assertTrue('variables' in out.keys())
+        self.assertTrue(out['text'] == "Example of text.")
+        
+        
+
+class test_image_server_test_case_cmd_line(unittest.TestCase):
+    
+    def test_img_cmd_line_send_file_direct(self):
+        
+        img_target = 'http://0.0.0.0:5001/model/predict'
+        
+        post_cmd = 'curl -F "image=@./example_qr_code.png" -XPOST ' + img_target
+        
+        out = os.popen(post_cmd).read()
+ 
+        out = json.loads(out)
+        
+        self.assertTrue('text' in out.keys())
+        self.assertTrue('variables' in out.keys())
+        self.assertTrue(out['text'] == "Example image")
+        
+        
+class test_csv_server_cmd_line(unittest.TestCase):
+    
+    def test_csv_cmd_line_sent_file_direct(self):
+        
+        img_target = 'http://0.0.0.0:5002/model/predict'
+        
+        post_cmd = 'curl -F "csv=@./example.csv" -XPOST ' + img_target
+        
+        out = os.popen(post_cmd).read()
+ 
+        out = json.loads(out)
+        
+        self.assertTrue('text' in out.keys())
+        
+        self.assertTrue('variables' in out.keys())
+        
+        self.assertTrue('shape' in out.keys())
+        
+        self.assertTrue(out['shape'] == [2, 3])
+        
+    def test_xlsx_cmd_line_sent_file_direct(self):
+        
+        img_target = 'http://0.0.0.0:5002/model/predict'
+        
+        post_cmd = 'curl -F "xlsx=@./example.xlsx" -XPOST ' + img_target
+        
+        out = os.popen(post_cmd).read()
+ 
+        out = json.loads(out)
+        
+        self.assertTrue('text' in out.keys())
+        
+        self.assertTrue('variables' in out.keys())
+        
+        self.assertTrue('shape' in out.keys())
+        
+        self.assertTrue(out['shape'] == [2, 3])
+        
+class test_json_server_cmd_line(unittest.TestCase):
+    
+    def test_json_send_from_server(self):
+        
+        json_target = 'http://0.0.0.0:5003/model/predict'
+        
+        json_source = 'http://0.0.0.0:8001/example.json'
+        
+        post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{\"contentUrl\":\"%s\"}' %s"%(json_source, json_target)
+
+        out = os.popen(post_cmd).read()
+
+        out = json.loads(out)
+        
+        self.assertTrue(out['example'] == 'of')
+        self.assertTrue(out['json']['to'] == 'be')
+        self.assertTrue(len(out['a']) == 3)
+
+#################################
+### TEST FUNCTION VALIDATAION ###
+#################################
+
+class testing_function_validation(unittest.TestCase):
+    
+    def test_text_function_validation(self):
+        
+        from nanowire_flask.text_tools import check_text_function_is_valid
+        
+        
+        def pass_function_text_no_var(text):
+            
+            return {}
+        
+        def pass_function_text_var(text, variables):
+            
+            return {}
+        
+        def fail_function_var(variables):
+            
+            return {}
+        
+        class validation_text_tester(object):
+            
+            def pass_function_self_text(self, text):
+                
+                return {}
+            
+            def pass_function_self_text_var(self, text, variables):
+                
+                return {}
+            
+            def fail_function_self_var(self, variables):
+                
+                return {}
+            
+        self.assertTrue(check_text_function_is_valid(pass_function_text_no_var))            
+        
+        self.assertTrue(check_text_function_is_valid(pass_function_text_var))
+        
+        self.assertTrue(not check_text_function_is_valid(fail_function_var))
+        
+        tester = validation_text_tester()
+        
+        self.assertTrue(check_text_function_is_valid(tester.pass_function_self_text))
+        
+        self.assertTrue(check_text_function_is_valid(tester.pass_function_self_text_var))
+        
+        self.assertTrue(not check_text_function_is_valid(tester.fail_function_self_var))
+        
+        
+        
+    def test_image_function_validation(self):
+        
+        from nanowire_flask.image_tools import check_Image_function_is_valid
+        
+        
+        def pass_function_img_no_var(img):
+            
+            return {}
+        
+        def pass_function_img_var(img, variables):
+            
+            return {}
+        
+        def fail_function_var(variables):
+            
+            return {}
+        
+        class validation_image_tester(object):
+            
+            def pass_function_self_img(self, img):
+                
+                return {}
+            
+            def pass_function_self_img_var(self, img, variables):
+                
+                return {}
+            
+            def fail_function_self_var(self, variables):
+                
+                return {}
+            
+        self.assertTrue(check_Image_function_is_valid(pass_function_img_no_var))            
+        
+        self.assertTrue(check_Image_function_is_valid(pass_function_img_var))
+        
+        self.assertTrue(not check_Image_function_is_valid(fail_function_var))
+        
+        tester = validation_image_tester()
+        
+        self.assertTrue(check_Image_function_is_valid(tester.pass_function_self_img))
+        
+        self.assertTrue(check_Image_function_is_valid(tester.pass_function_self_img_var))
+        
+        self.assertTrue(not check_Image_function_is_valid(tester.fail_function_self_var))
+        
+        
+    def test_csv_function_validation(self):
+        
+        from nanowire_flask.csv_tools import check_csv_function_is_valid
+        
+        
+        def pass_function_csv_no_var(df):
+            
+            return {}
+        
+        def pass_function_csv_var(df, variables):
+            
+            return {}
+        
+        def fail_function_var(variables):
+            
+            return {}
+        
+        class validation_csv_tester(object):
+            
+            def pass_function_self_csv(self, df):
+                
+                return {}
+            
+            def pass_function_self_csv_var(self, df, variables):
+                
+                return {}
+            
+            def fail_function_self_var(self, variables):
+                
+                return {}
+            
+        self.assertTrue(check_csv_function_is_valid(pass_function_csv_no_var))            
+        
+        self.assertTrue(check_csv_function_is_valid(pass_function_csv_var))
+        
+        self.assertTrue(not check_csv_function_is_valid(fail_function_var))
+        
+        tester = validation_csv_tester()
+        
+        self.assertTrue(check_csv_function_is_valid(tester.pass_function_self_csv))
+        
+        self.assertTrue(check_csv_function_is_valid(tester.pass_function_self_csv_var))
+        
+        self.assertTrue(not check_csv_function_is_valid(tester.fail_function_self_var))
+        
+        
+    def test_json_function_validation(self):
+        
+        from nanowire_flask.json_tools import check_json_function_is_valid
+        
+        
+        def pass_function_json(inputJSON):
+            
+            return {}
+        
+        
+        def fail_function_var(variables):
+            
+            return {}
+        
+        class validation_json_tester(object):
+            
+            def pass_function_self_json(self, inputJSON):
+                
+                return {}
+            
+
+            def fail_function_self_var(self, variables):
+                
+                return {}
+            
+        self.assertTrue(check_json_function_is_valid(pass_function_json))            
+        
+        self.assertTrue(not check_json_function_is_valid(fail_function_var))
+        
+        tester = validation_json_tester()
+        
+        self.assertTrue(check_json_function_is_valid(tester.pass_function_self_json))
+        
+        self.assertTrue(not check_json_function_is_valid(tester.fail_function_self_var))
+
         
 ####################################
 ### End of unit test definitions ###
@@ -418,7 +700,7 @@ example_df.to_excel('example.xlsx', index=False)
 
 #generate an example json
 example_dict = {'example':'of', 
-                'a':[1,2,3],
+                'a':[1,'2',True],
                 'json':{'to':'be', 'loaded':'in'}
                 }
 

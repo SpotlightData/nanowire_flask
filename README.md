@@ -37,7 +37,7 @@ The library may also accept CSV objects using command like
 
 a xlsx file may be sent in the same way:
 
-``curl -F "xlsx=@./example.xlsx" -XPOST http://0.0.0.0:5000/model/predict?ignore_col=text``
+``curl -F "xlsx=@./example.xlsx" -XPOST 'http://0.0.0.0:5000/model/predict?ignore_col=text&customStops=horse,course&indexCol=uuid'``
 
 alternativly a link to a csv or xlsx file may be sent such as:
 

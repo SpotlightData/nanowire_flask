@@ -19,8 +19,6 @@ def test_csv_function(df, variables):
     
     print("RECEVED CSV REQUEST")
     
-    time.sleep(1)
-    
     result = str(df['uuid'])
     
     out = {"text":result,
