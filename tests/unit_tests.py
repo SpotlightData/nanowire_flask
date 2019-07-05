@@ -91,6 +91,8 @@ class text_server_test_case(unittest.TestCase):
             t = f.read()
         
         self.assertTrue(out['text'] == t)
+        
+        
     
 #test the image processing tools with the requests library
 class image_server_test_case(unittest.TestCase):
@@ -419,6 +421,40 @@ class test_text_server_test_case_cmd_line(unittest.TestCase):
         self.assertTrue(out['text'] == "Example of text.")
         
         
+    def test_text_cmd_line_malformed_cmd(self):
+
+        
+        text_target = 'http://0.0.0.0:5000/model/predict'
+        
+        
+        post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{\"text\"::\"Example of text.\", \"threshold\":0.5}'"
+        
+        post_cmd += ' '
+        post_cmd += text_target
+        
+        out = os.popen(post_cmd).read()
+        
+        out = json.loads(out)
+
+        self.assertTrue(out['error']=='VARIABLES JSON IS MALFORMED, PLEASE EXAMINE YOUR REQUEST AND RETRY')
+        
+    
+    def test_text_cmd_line_malformed_server_address(self):
+        
+        text_target = 'http://0.0.0.0:5000/model/predict'
+        
+        text_file = 'http://0.0.0.0:1221/test_text1.txt'
+        
+        post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{\"contentUrl\":\"%s\", \"threshold\":0.5}'"%text_file
+        
+        post_cmd += ' '
+        post_cmd += text_target
+        
+        out = os.popen(post_cmd).read()
+        
+        out = json.loads(out)
+
+        self.assertTrue(out['error'] == "CANNOT CONNECT TO FILE URL, CHECK FILE URL AND TRY AGAIN")
 
 class test_image_server_test_case_cmd_line(unittest.TestCase):
     
@@ -475,6 +511,27 @@ class test_csv_server_cmd_line(unittest.TestCase):
         
         self.assertTrue(out['shape'] == [2, 3])
         
+    def test_xlsx_cmd_line_bad_file_url(self):
+        
+        post_cmd = 'curl -X POST -H "Content-Type:application/json" -d \'{"contentUrl":"http://0.0.0.0:8029/example.csv", "ignore_col":"dates"}\' http://0.0.0.0:5002/model/predict'
+        
+        out = os.popen(post_cmd).read()
+ 
+        out = json.loads(out)
+        
+
+        self.assertTrue(out['error'] == "CANNOT CONNECT TO FILE URL, CHECK FILE URL AND TRY AGAIN")
+        
+    def test_xlsx_cmd_line_malformed_json(self):
+        
+        post_cmd = 'curl -X POST -H "Content-Type:application/json" -d \'{"contentUrl"::"http://0.0.0.0:8001/example.csv", "ignore_col":"dates"}\' http://0.0.0.0:5002/model/predict'
+        
+        out = os.popen(post_cmd).read()
+ 
+        out = json.loads(out)
+        
+        self.assertTrue(out['error'] == "VARIABLES JSON IS MALFORMED, PLEASE EXAMINE YOUR REQUEST AND RETRY")
+        
 class test_json_server_cmd_line(unittest.TestCase):
     
     def test_json_send_from_server(self):
@@ -489,9 +546,40 @@ class test_json_server_cmd_line(unittest.TestCase):
 
         out = json.loads(out)
         
+        self.assertTrue(out['a'] == [1, '2', True])
         self.assertTrue(out['example'] == 'of')
+        self.assertTrue(out['json']['loaded'] == 'in')
         self.assertTrue(out['json']['to'] == 'be')
-        self.assertTrue(len(out['a']) == 3)
+    
+    
+    def test_json_bad_url(self):
+        
+        json_target = 'http://0.0.0.0:5003/model/predict'
+        
+        json_source = 'http://0.0.0.0:8045/example.json'
+        
+        post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{\"contentUrl\":\"%s\"}' %s"%(json_source, json_target)
+
+        out = os.popen(post_cmd).read()
+
+        out = json.loads(out)
+        
+        self.assertTrue(out['error'] == "CANNOT CONNECT TO FILE URL, CHECK FILE URL AND TRY AGAIN")
+        
+        
+    def test_json_malformed_json(self):
+        
+        json_target = 'http://0.0.0.0:5003/model/predict'
+        
+        json_source = 'http://0.0.0.0:8001/example.json'
+        
+        post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{\"contentUrl\"::\"%s\"}' %s"%(json_source, json_target)
+
+        out = os.popen(post_cmd).read()
+
+        out = json.loads(out)
+        
+        self.assertTrue(out['error'] == "VARIABLES JSON IS MALFORMED, PLEASE EXAMINE YOUR REQUEST AND RETRY")
 
 #################################
 ### TEST FUNCTION VALIDATAION ###

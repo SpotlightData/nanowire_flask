@@ -52,7 +52,10 @@ def run_text(r, app):
     #a PIL
     else:
         #extract the variables info sent to the plugin
-        variables_info = r.json
+        try:
+            variables_info = r.json
+        except:
+            raise Exception("VARIABLES JSON IS MALFORMED, PLEASE EXAMINE YOUR REQUEST AND RETRY")
         
         #make sure content url is the right case
         #variables_info = map_contenturl2casecorrect(variables_info)
@@ -66,15 +69,27 @@ def run_text(r, app):
             
         elif 'contentUrl' in variables_info.keys():
             
-            response = requests.get(variables_info['contentUrl'])
-                     
-            text = response.content.decode()
+            
+            try:
+                response = requests.get(variables_info['contentUrl'])
+                
+            except Exception as exp:
+
+                raise Exception("CANNOT CONNECT TO FILE URL, CHECK FILE URL AND TRY AGAIN")
             
             if response.status_code == 404:
                 
                 raise Exception("FILE MISSING, CHECK URL OF LINK")
+    
             
-            variables_info.pop('contentUrl', None)
+            try:
+                text = response.content.decode()
+                
+                variables_info.pop('contentUrl', None)
+            except:
+                print("++++++++++")
+                print(response.status_code)
+                print("========")
             
         else:
             raise Exception("COULD NOT FIND 'contentUrl' OR 'text' IN REQUEST")
@@ -195,7 +210,7 @@ class TextAPI(View):
                 
                 if os.path.exists("/VERSION"):
                     with open("/VERSION", "r") as f:
-                        version = scrub_newlines(f.read())    
+                        version = scrub_newlines(f.read())
                     answer["image_version"] = version
                     
                 if os.path.exists("/IMAGE_NAME"):

@@ -81,11 +81,17 @@ def run_csv(r, app):
     #a PIL
     else:
         #extract the variables info sent to the plugin
-        variables_info = r.json
-
+        try:
+            variables_info = r.json
+        except:
+            raise Exception('VARIABLES JSON IS MALFORMED, PLEASE EXAMINE YOUR REQUEST AND RETRY')
         #extract the image from the sent url
-        im_request = requests.get(variables_info['contentUrl'])
-        
+        try:
+            im_request = requests.get(variables_info['contentUrl'])
+        except:
+            raise Exception('CANNOT CONNECT TO FILE URL, CHECK FILE URL AND TRY AGAIN')
+            
+            
         bytes_obj = BytesIO(im_request.content)
         try:
             df = pd.read_csv(bytes_obj, dtype='unicode')

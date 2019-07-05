@@ -56,14 +56,20 @@ def run_json(r, app):
     #a PIL
     else:
         #extract the json info sent to the plugin
-        variables_info = r.json
-        
+        try:
+            variables_info = r.json
+        except:
+            raise Exception("VARIABLES JSON IS MALFORMED, PLEASE EXAMINE YOUR REQUEST AND RETRY")
+            
         #make sure content url is the right case
         #variables_info = map_contenturl2casecorrect(variables_info)
 
         if 'contentUrl' in variables_info.keys():
             
-            response = requests.get(variables_info['contentUrl'])
+            try:
+                response = requests.get(variables_info['contentUrl'])
+            except:
+                raise Exception("CANNOT CONNECT TO FILE URL, CHECK FILE URL AND TRY AGAIN")
                      
             text = json.loads(response.content.decode())
             
