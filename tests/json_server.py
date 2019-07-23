@@ -15,13 +15,14 @@ import nanowire_flask as nf
 from nanowire_flask.json_tools import mount_json_function
 
 
-def test_json_function(inputJSON):
+def test_json_function(inputJSON, variables):
     
     print("RECEVED REQUEST")
     
     time.sleep(0.2)
     
-    out = inputJSON
+    out = {'inputJSON':inputJSON,
+           'variables':variables}
     
     return out
 

@@ -1,0 +1,40 @@
+body {
+    background-color: white;
+    font-family: Helvetica, sans-serif;
+}
+h1 {
+    color: blue;
+}
+
+h2 {
+    color: red;
+}
+
+div.code {
+    background-color: darkgray;
+    border: 5px;
+    border-color: black;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+#main_body {
+    margin: 0 auto;
+    padding: 0px 10px;
+    position: relative;
+    float:left;
+    z-index: -1;
+    display: block;
+}
+
+#sidebar {
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left:0;
+    width:250px;
+    height:100%;
+    float:left;
+    background-color: grey;
+    overflow-x: hidden;
+}

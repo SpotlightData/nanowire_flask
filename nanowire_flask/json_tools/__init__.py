@@ -38,6 +38,11 @@ import inspect
 
 from nanowire_flask import scrub_newlines, usage_collection
 
+import logging
+
+logger = logging.getLogger('NANOWIRE_FLASK')
+
+logger.setLevel(level=logging.WARNING)
 
 ###################################
 ### Functions for a json plugin ###
@@ -49,6 +54,8 @@ def run_json(r, app):
     #if the user has sent a url then we want to extract that URL like this
     if r.headers['Content-Type'] != 'application/json':
 
+        variables_info = {}
+        
         # convert string of image data to uint8
         text = json.loads(r.files['doc'].read().decode())
 
@@ -61,10 +68,20 @@ def run_json(r, app):
         except:
             raise Exception("VARIABLES JSON IS MALFORMED, PLEASE EXAMINE YOUR REQUEST AND RETRY")
             
-        #make sure content url is the right case
-        #variables_info = map_contenturl2casecorrect(variables_info)
-
-        if 'contentUrl' in variables_info.keys():
+        #for when the json is in the request
+        if 'inputJSON' in variables_info.keys():
+            
+            text = variables_info['inputJSON']
+            
+            if 'variables' in variables_info.keys():
+                
+                variables_info = variables_info['variables']
+                
+            else:
+                variables_info = {}
+            
+        #for when the json is stored on a server
+        elif 'contentUrl' in variables_info.keys():
             
             try:
                 response = requests.get(variables_info['contentUrl'])
@@ -81,6 +98,7 @@ def run_json(r, app):
             
         else:
             text = variables_info
+            logger.warning("WARNING - THIS METHOD OF PASSING DATA TO A PLUGIN IS DEPRECATED AND WILL BE REMOVED IN FUTURE VERSIONS OF nanowire_flask. PLEASE SEE DOCUMENTATION.")
 
     #apply the function to the image
     if inspect.getargspec(app.config['function'])[0][-1] == 'variables':
@@ -105,7 +123,7 @@ def check_json_function_is_valid(function):
 
     args = inspect.getargspec(function)[0]
 
-    if args != ['inputJSON'] and args != ['self', 'inputJSON']:
+    if args != ['inputJSON'] and args != ['self', 'inputJSON'] and args != ['inputJSON', 'variables'] and args != ['self', 'inputJSON', 'variables']:
         
         return False
         
@@ -157,7 +175,7 @@ class mount_json_function(object):
         
         else:
             #if the function has bad inputs reject it
-            raise Exception("BAD ARGUMENTS SENT TO FUNCTION")
+            raise Exception("BAD ARGUMENTS USED FOR MOUNTED FUNCTION")
 
     
 class jsonAPI(View):

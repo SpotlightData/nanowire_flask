@@ -16,3 +16,4 @@ ADD ./csv_server.py /
 ADD ./test_text1.txt /
 
 CMD ["python", "unit_tests.py"]
+#CMD ["python", "json_server.py"]

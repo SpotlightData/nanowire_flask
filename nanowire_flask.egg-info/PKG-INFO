@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: nanowire-flask
-Version: 0.0.131
+Version: 0.0.133
 Summary: Tool for creating nanowire tools with the flask structure.
 Home-page: https://github.com/SpotlightData/nanowire_flask
 Author: Stuart Bowe
@@ -8,6 +8,7 @@ Author-email: stuart@spotlightdata.co.uk
 License: MIT
 Description: Nanowire flask
         ==============
+        
         This library is designed to allow a python developer to easily create a nanowire plugin using the flask APIs structure.
         
         The function you mount for image plugins, using the function ``mount_Image_function``  must have the arguments ``img`` and ``variables`` if you want initialise a model or other variables when the sever starts you may make the function to be mounted into a function of a 
@@ -47,19 +48,25 @@ Description: Nanowire flask
         
         ``curl -F "xlsx=@./example.xlsx" -XPOST 'http://0.0.0.0:5000/model/predict?ignore_col=text&customStops=horse,course&indexCol=uuid'``
         
-        alternativly a link to a csv or xlsx file may be sent such as:
+        alternatively a link to a csv or xlsx file may be sent such as:
         
         ``curl -X POST -H "Content-Type:application/json" -d '{"contentUrl":"http://localhost:8000/example.csv", "ignore_col":"dates"}' http://0.0.0.0:5000/model/predict``
         
         The library may also accept JSON objects using commands such as
         
-        ``curl -X POST -H "Content-Type:application/json" -d '{"this":"is", "an":"example"}' http://0.0.0.0:5000/model/predict``
+        ``curl -X POST -H "Content-Type:application/json" -d '{"inputJSON": {"this":"is", "an":"example"}, "variables":{"customStops":["horse", "course"]}' http://0.0.0.0:5000/model/predict``
         
-        alternativly a csv file may be sent from a server
+        alternatively a JSON file may be sent from a server
         
         ``curl -X POST -H "Content-Type:application/json" -d '{"contentUrl":"http://localhost:8000/example.json"}' http://0.0.0.0:5000/model/predict``
         
-        This library will eventually be expanded to be able to handle video, sound and arbitary files however for now it is limited to text, images, csv files and json files.
+        an old version of this command would accept:
+        
+        ``curl -X POST -H "Content-Type:application/json" -d '{"this":"is", "an":"example"}' http://0.0.0.0:5000/model/predict``
+        
+        however this is deprecated and will no longer be accepted in future versions of this library.
+        
+        This library will eventually be expanded to be able to handle video, sound and arbitrary files however for now it is limited to text, images, csv files and json files.
         
         The API you create will also return maximum memory usage (in MB), maximum cpu usage (in %) and time taken (in seconds) when processing a given API call.
         
@@ -110,6 +117,5 @@ Description: Nanowire flask
         **Notes on taskID**
         
         If the post contains ``taskID`` as an argument the taskID given will also be returned in the output JSON.
-        
 Keywords: flask,API,nanowire,spotlight data
 Platform: UNKNOWN

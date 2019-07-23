@@ -17,7 +17,7 @@ import unittest
 import qrcode
 
 import pandas as pd
-
+from pprint import pprint
 
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
@@ -372,10 +372,9 @@ class JSON_server_test_case(unittest.TestCase):
         
         out = r.json()
 
-        
-        self.assertTrue(out['example'] == 'of')
-        self.assertTrue(out['json']['to'] == 'be')
-        self.assertTrue(len(out['a']) == 3)
+        self.assertTrue(out['inputJSON']['example'] == 'of')
+        self.assertTrue(out['inputJSON']['json']['to'] == 'be')
+        self.assertTrue(len(out['inputJSON']['a']) == 3)
         
     def test_from_server_JSON(self):
         
@@ -392,9 +391,9 @@ class JSON_server_test_case(unittest.TestCase):
         
         out = r.json()
 
-        self.assertTrue(out['example'] == 'of')
-        self.assertTrue(out['json']['to'] == 'be')
-        self.assertTrue(len(out['a']) == 3)
+        self.assertTrue(out['inputJSON']['example'] == 'of')
+        self.assertTrue(out['inputJSON']['json']['to'] == 'be')
+        self.assertTrue(len(out['inputJSON']['a']) == 3)
 
 
 
@@ -546,10 +545,10 @@ class test_json_server_cmd_line(unittest.TestCase):
 
         out = json.loads(out)
         
-        self.assertTrue(out['a'] == [1, '2', True])
-        self.assertTrue(out['example'] == 'of')
-        self.assertTrue(out['json']['loaded'] == 'in')
-        self.assertTrue(out['json']['to'] == 'be')
+        self.assertTrue(out['inputJSON']['a'] == [1, '2', True])
+        self.assertTrue(out['inputJSON']['example'] == 'of')
+        self.assertTrue(out['inputJSON']['json']['loaded'] == 'in')
+        self.assertTrue(out['inputJSON']['json']['to'] == 'be')
     
     
     def test_json_bad_url(self):
@@ -574,6 +573,21 @@ class test_json_server_cmd_line(unittest.TestCase):
         json_source = 'http://0.0.0.0:8001/example.json'
         
         post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{\"contentUrl\"::\"%s\"}' %s"%(json_source, json_target)
+
+        out = os.popen(post_cmd).read()
+
+        out = json.loads(out)
+        
+        self.assertTrue(out['error'] == "VARIABLES JSON IS MALFORMED, PLEASE EXAMINE YOUR REQUEST AND RETRY")
+        
+        
+    def test_json_with_variables(self):
+        
+        json_target = 'http://0.0.0.0:5003/model/predict'
+        
+        json_source = 'http://0.0.0.0:8001/example.json'
+        
+        post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{\"contentUrl\":\"%s\", \"customStops\":[\"horse\", \"course\"]' %s"%(json_source, json_target)
 
         out = os.popen(post_cmd).read()
 
@@ -745,8 +759,11 @@ class testing_function_validation(unittest.TestCase):
             def pass_function_self_json(self, inputJSON):
                 
                 return {}
-            
 
+            def pass_function_self_json_variables(self, inputJSON, variables):
+                
+                return {}
+        
             def fail_function_self_var(self, variables):
                 
                 return {}
@@ -760,6 +777,8 @@ class testing_function_validation(unittest.TestCase):
         self.assertTrue(check_json_function_is_valid(tester.pass_function_self_json))
         
         self.assertTrue(not check_json_function_is_valid(tester.fail_function_self_var))
+
+        self.assertTrue(check_json_function_is_valid(tester.pass_function_self_json_variables))
 
         
 ####################################

@@ -4,7 +4,7 @@ flask-API
 pandas
 requests
 Pillow
-nanowire_flask==0.0.131
+nanowire_flask==0.0.133
 qrcode
 pyzbar
 openpyxl
