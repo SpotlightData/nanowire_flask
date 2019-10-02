@@ -13,7 +13,10 @@ ADD ./text_server.py /
 ADD ./image_server.py /
 ADD ./json_server.py /
 ADD ./csv_server.py /
+ADD ./file_server.py /
 ADD ./test_text1.txt /
+ADD ./test_text2.txt /
+ADD ./test_text3.txt /
 
 CMD ["python", "unit_tests.py"]
 #CMD ["python", "json_server.py"]

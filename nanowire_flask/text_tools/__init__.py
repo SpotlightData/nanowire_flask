@@ -10,7 +10,6 @@ Created on Mon May 20 11:32:33 2019
 
 import time
 
-
 import requests
 
 import traceback
@@ -21,7 +20,6 @@ from flask.views import View
 
 from flask_api import FlaskAPI
 
-
 #memory and cpu usage collection tools
 
 import sys
@@ -31,10 +29,7 @@ import socket
 
 py_version = int(sys.version[0])
 
-
 import inspect
-
-
 
 from nanowire_flask import scrub_newlines, usage_collection
 
@@ -83,13 +78,14 @@ def run_text(r, app):
     
             
             try:
-                text = response.content.decode()
+                text = response.content.decode(errors = "replace")
                 
                 variables_info.pop('contentUrl', None)
-            except:
+            except Exception as exp:
                 print("++++++++++")
                 print(response.status_code)
                 print("========")
+                raise Exception('TEXT CONTAINS INVALID CHARACTERS')
             
         else:
             raise Exception("COULD NOT FIND 'contentUrl' OR 'text' IN REQUEST")

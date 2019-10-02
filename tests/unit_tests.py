@@ -51,7 +51,7 @@ class text_server_test_case(unittest.TestCase):
         
         text_target = 'http://0.0.0.0:5000/model/predict'
         
-        files = {'doc': ('./test_text1.txt', open('./test_text1.txt', 'rb'))}
+        files = {'doc': ('/test_text2.txt', open('/test_text2.txt', 'rb'))}
         
         r = requests.post(text_target + '?threshold=0.1', files=files)
         
@@ -63,7 +63,7 @@ class text_server_test_case(unittest.TestCase):
         
         self.assertTrue('threshold' in out['variables'].keys())
         
-        with open('./test_text1.txt', "r") as f:
+        with open('/test_text2.txt', "r") as f:
             t = f.read()
         
         self.assertTrue(out['text'] == t)
@@ -73,7 +73,7 @@ class text_server_test_case(unittest.TestCase):
         
         text_target = 'http://0.0.0.0:5000/model/predict'
         
-        text_file = 'http://0.0.0.0:8001/test_text1.txt'
+        text_file = 'http://0.0.0.0:8001/test_text3.txt'
         
         d = json.dumps({"contentUrl":text_file,
                         "clean_text":0})
@@ -83,11 +83,11 @@ class text_server_test_case(unittest.TestCase):
         r = requests.post(text_target, headers = heads, data=d)
         
         out = r.json()
-                
+                       
         self.assertTrue('text' in out.keys())
         self.assertTrue('variables' in out.keys())
         
-        with open('./test_text1.txt', "r") as f:
+        with open('/test_text3.txt', "r") as f:
             t = f.read()
         
         self.assertTrue(out['text'] == t)
@@ -470,7 +470,39 @@ class test_image_server_test_case_cmd_line(unittest.TestCase):
         self.assertTrue('text' in out.keys())
         self.assertTrue('variables' in out.keys())
         self.assertTrue(out['text'] == "Example image")
+
+    def test_img_cmd_line_send_file_direct_malformed_json(self):
         
+        img_target = 'http://0.0.0.0:5001/model/predict'
+        
+        post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{\"contentUrl\"::\"urlExample, \"threshold\":0.5}'"
+            
+        post_cmd += ' '
+        post_cmd += img_target
+        
+        out = os.popen(post_cmd).read()
+ 
+        out = json.loads(out)
+
+        self.assertTrue('error' in out.keys())
+        self.assertTrue(out['error'] == 'VARIABLES JSON IS MALFORMED, PLEASE EXAMINE YOUR REQUEST AND RETRY')
+        
+    def test_img_cmd_line_send_file_direct_malformed_url(self):
+        
+        img_target = 'http://0.0.0.0:5001/model/predict'
+        
+        post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{\"contentUrl\":\"http://0.0.0.0:9999:/blah/blak\"}'"
+            
+        post_cmd += ' '
+        post_cmd += img_target
+        
+        out = os.popen(post_cmd).read()
+ 
+        out = json.loads(out)
+
+        self.assertTrue('error' in out.keys())
+        self.assertTrue(out['error'] == 'COULD NOT PULL FROM URL, PLEASE CHECK URL AND RETRY')
+
         
 class test_csv_server_cmd_line(unittest.TestCase):
     
@@ -780,6 +812,58 @@ class testing_function_validation(unittest.TestCase):
 
         self.assertTrue(check_json_function_is_valid(tester.pass_function_self_json_variables))
 
+
+class test_file_server(unittest.TestCase):
+    
+    def test_file_cmd_line_send_file_direct_malformed_url(self):
+        
+        file_target = 'http://0.0.0.0:5006/model/predict'
+        
+        post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{\"contentUrl\":\"http://0.0.0.0:9999:/blah/blak\"}'"
+            
+        post_cmd += ' '
+        post_cmd += file_target
+        
+        out = os.popen(post_cmd).read()
+ 
+        out = json.loads(out)
+       
+        self.assertTrue('error' in out.keys())
+        self.assertTrue(out['error'] == 'COULD NOT PULL FROM URL, PLEASE CHECK URL AND RETRY')
+        
+        
+    def test_file_cmd_line_send_File_direct_fine(self):
+        
+        file_target = 'http://0.0.0.0:5006/model/predict'
+        
+        post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{\"contentUrl\":\"http://0.0.0.0:8001/test_text1.txt\"}'"
+            
+        post_cmd += ' '
+        post_cmd += file_target
+        
+        out = os.popen(post_cmd).read()
+ 
+        out = json.loads(out)
+        
+       
+        self.assertTrue('result' in out.keys())
+        self.assertTrue(out['result'] == 'Hello, This is a test!')
+        
+    def test_file_cmd_line_send_File_direct_malformed_json(self):
+        
+        file_target = 'http://0.0.0.0:5006/model/predict'
+        
+        post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{\"contentUrl\":\"http://0.0.0.0:8001/test_text1.txt\", \"threshold\":\"0.5}'"
+            
+        post_cmd += ' '
+        post_cmd += file_target
+        
+        out = os.popen(post_cmd).read()
+ 
+        out = json.loads(out)
+       
+        self.assertTrue('error' in out.keys())
+        self.assertTrue(out['error'] == 'VARIABLES JSON IS MALFORMED, PLEASE EXAMINE YOUR REQUEST AND RETRY')
         
 ####################################
 ### End of unit test definitions ###
@@ -843,6 +927,14 @@ print("STARTING CSV SERVER")
 run_JSON_cmd = 'python3 ./json_server.py &'
 
 result = os.system(run_JSON_cmd)
+
+print("STARTING JSON SERVER")
+
+run_file_cmd = 'python3 ./file_server.py &'
+
+result = os.system(run_file_cmd)
+
+print("STARTING FILE SERVER")
 
 #wait for the server to start
 time.sleep(5)

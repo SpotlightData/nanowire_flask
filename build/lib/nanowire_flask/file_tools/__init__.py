@@ -57,24 +57,28 @@ def run_file(r, app):
         # convert string of image data to uint8
         
         #filename = pullAndSave(r.files['file'])
-        print("+++++")
-        print(type(r.files['file']))
-        print(dir(r.files['file']))
-        print(r.files['file'].filename)
-        print("+++++")
-        
-        filename = r.files['file'].filename
-        r.files['file'].save(filename)
+        try:
+            filename = r.files['file'].filename
+            r.files['file'].save(filename)
+        except:
+            raise Exception("COULD NOT EXTRACT FILE, PLEASE CHECK REQUEST AND RETRY")
 
     #if the user has sent an image then lets extract that image and store it as
     #a PIL
     else:
         #extract the variables info sent to the plugin
-        variables_info = r.json
+        try:
+            variables_info = r.json
+        except:
+            raise Exception("VARIABLES JSON IS MALFORMED, PLEASE EXAMINE YOUR REQUEST AND RETRY")
 
-        #extract the image from the sent url
-        filename = pullAndSave(variables_info['contentUrl'])
 
+        try:
+            #extract the image from the sent url
+            filename = pullAndSave(variables_info['contentUrl'])
+        except:
+            raise Exception("COULD NOT PULL FROM URL, PLEASE CHECK URL AND RETRY")
+            
         variables_info.pop('contentUrl', None)
 
     #apply the function to the image

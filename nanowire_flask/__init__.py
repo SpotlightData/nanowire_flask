@@ -44,7 +44,6 @@ if py_version == 2:
 else:
     import queue
 
-
 import inspect
 
 import logging
@@ -63,8 +62,16 @@ files[:] = [x for x in files if 'nanowire_flask' in x]
 
 files[:] = [x for x in files if x != 'nanowire_flask']
 
-__version__ = re.findall(r'([0-9]*\.[0-9]*\.[0-9]*)', files[0])[0]
 
+version_file = os.path.join(mod_path, 'VERSION')
+try:
+    with open(version_file, 'r') as f:
+    
+        __version__ = f.read().lstrip().rstrip()
+        
+except:
+    __version__ = re.findall(r'([0-9]*\.[0-9]*\.[0-9]*)', files[0])[0]
+    
 ###################
 ### Admin tools ###
 ###################

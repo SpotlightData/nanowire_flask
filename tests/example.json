@@ -1,1 +1,6 @@
-{"example": "of", "a": [1, "2", true], "json": {"to": "be", "loaded": "in"}}
+{
+    "a":[1, "2", True],
+    "example":"of",
+    "json":{"loaded":"in",
+    "to":"be"}
+}

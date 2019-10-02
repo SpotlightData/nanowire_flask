@@ -32,9 +32,7 @@ import socket
 
 py_version = int(sys.version[0])
 
-
 import inspect
-
 
 from nanowire_flask import scrub_newlines, usage_collection
 
@@ -43,8 +41,11 @@ def run_image(r, app):
 
     #if the user has sent a url then we want to extract that URL like this
     if r.headers['Content-Type'] != 'application/json':
-    
-        variables_info = dict(r.args)
+        
+        try:
+            variables_info = dict(r.args)
+        except:
+            raise Exception("VARIABLES JSON IS MALFORMED, PLEASE EXAMINE YOUR REQUEST AND RETRY")
                 
         # convert string of image data to uint8
         im = Image.open(r.files['image']).convert("RGB")
@@ -53,12 +54,18 @@ def run_image(r, app):
     #a PIL
     else:
         #extract the variables info sent to the plugin
-        variables_info = r.json
+        try:
+            variables_info = r.json
+        except:
+            raise Exception("VARIABLES JSON IS MALFORMED, PLEASE EXAMINE YOUR REQUEST AND RETRY")
 
-        #extract the image from the sent url
-        im_request = requests.get(variables_info['contentUrl'])
-
-        im = Image.open(BytesIO(im_request.content)).convert("RGB")
+        try:
+            #extract the image from the sent url
+            im_request = requests.get(variables_info['contentUrl'])
+    
+            im = Image.open(BytesIO(im_request.content)).convert("RGB")
+        except:
+            raise Exception("COULD NOT PULL FROM URL, PLEASE CHECK URL AND RETRY")
         
         variables_info.pop('contentUrl', None)
 
