@@ -9,11 +9,7 @@ Created on Mon May 20 11:32:33 2019
 #nanowire_flask image tools
 
 import time
-from PIL import Image
 
-import requests
-
-from io import BytesIO
 
 import traceback
 
@@ -40,9 +36,9 @@ from nanowire_flask import scrub_newlines, usage_collection
 
 def pullAndSave(url):
 
-    filename = url.split("/")[-1]
+    name = url.split("/")[-1]
 
-    urllib.request.urlretrieve(url)
+    filename, _ = urllib.request.urlretrieve(url, name)
 
     return filename
 
@@ -207,8 +203,7 @@ class filesAPI(View):
             return Response(response=response_pic, status=200, mimetype="application/json")
         
         except Exception as exp:
-            
-
+        
             response = {'status':'failure', 'error':str(exp)}
             
             #if we're in debug mode then return a full traceback

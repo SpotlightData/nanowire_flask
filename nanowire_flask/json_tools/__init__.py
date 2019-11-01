@@ -40,9 +40,16 @@ from nanowire_flask import scrub_newlines, usage_collection
 
 import logging
 
-logger = logging.getLogger('NANOWIRE_FLASK')
 
-logger.setLevel(level=logging.WARNING)
+logger = logging.getLogger("NANOWIRE_FLASK_JSON")
+
+if 'PYTHON_DEBUG' in os.environ.keys():
+    logger.setLevel(logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG, format='%(name)s - %(levelname)s - %(message)')
+else:
+    logger.setLevel(logging.INFO)
+    logging.basicConfig(level=logging.INFO, format='%(name)s - %(levelname)s - %(message)')
+
 
 ###################################
 ### Functions for a json plugin ###
@@ -86,7 +93,7 @@ def run_json(r, app):
             try:
                 response = requests.get(variables_info['contentUrl'])
             except:
-                raise Exception("CANNOT CONNECT TO FILE URL, CHECK FILE URL AND TRY AGAIN")
+                raise Exception("CANNOT CONNECT TO FILE URL {0}, CHECK FILE URL AND TRY AGAIN".format(variables_info['contentUrl']))
                      
             text = json.loads(response.content.decode())
             
@@ -154,6 +161,8 @@ class mount_json_function(object):
         self.path = path
         
         if check_json_function_is_valid(self.app.config['function']):
+
+            logger.debug("FUNCTION VALID, STARTING API")
             
             #define the class we're mounting onto post
             tool = jsonAPI
