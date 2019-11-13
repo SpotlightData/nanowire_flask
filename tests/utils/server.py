@@ -36,7 +36,6 @@ def read_till(process, message):
             break
         else:
             continue
-    process.stdout.close()
 
 
 class ServerTest(unittest.TestCase):
@@ -62,6 +61,7 @@ class ServerTest(unittest.TestCase):
         # print("Killing file server on {}".format(cls.file_server_url))
         os.kill(cls.file_server.pid, signal.SIGTERM)
         cls.file_server.wait()
+        cls.file_server.stdout.close()
 
     def file_url(self, file):
         return self.file_server_url + '/' + file
@@ -79,3 +79,4 @@ class ServerTest(unittest.TestCase):
         # print("Killing server {}".format(self.url))
         os.kill(self.server.pid, signal.SIGTERM)
         self.server.wait()
+        self.server.stdout.close()
