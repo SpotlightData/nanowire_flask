@@ -75,6 +75,9 @@ class ServerTest(unittest.TestCase):
         read_till(self.server, "Serving")
         # print("Running {} on {}".format(file, self.url))
 
+    def setUp(self):
+        raise("Please define setUp method")
+
     def tearDown(self):
         # print("Killing server {}".format(self.url))
         os.kill(self.server.pid, signal.SIGTERM)
