@@ -26,4 +26,4 @@ def test_csv_function(df, variables):
 
 print("FOUND VERSION", nf.__version__)
 
-mount_csv_function(test_csv_function, port=int(os.environ['HOME']))
+mount_csv_function(test_csv_function, port=int(os.environ['PORT']))
