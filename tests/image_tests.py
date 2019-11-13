@@ -117,8 +117,8 @@ class image_server_test_case(ServerTest):
 
     def test_from_server_bmp(self):
 
-        d = self.send_json({"contentUrl": self.file_url('example_qr_code.bmp'),
-                            "clean_text": 0})
+        out = self.send_json({"contentUrl": self.file_url('example_qr_code.bmp'),
+                              "clean_text": 0})
 
         self.assertTrue('text' in out.keys())
 
