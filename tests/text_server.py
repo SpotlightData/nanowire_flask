@@ -6,9 +6,10 @@ Created on Mon May 20 14:28:08 2019
 @author: stuart
 """
 
-#run text server
+# run text server
 
 import time
+import os
 import json
 import threading
 import requests
@@ -19,15 +20,15 @@ from nanowire_flask.text_tools import mount_text_function
 
 
 def test_text_function(text, variables):
-    
+
     print("RECEVED REQUEST")
-    
-    out = {"text":text,
-           "variables":variables}
-    
+
+    out = {"text": text,
+           "variables": variables}
+
     return out
 
 
 print("FOUND VERSION", nf.__version__)
 
-mount_text_function(test_text_function, port=5000)
+mount_text_function(test_text_function, port=int(os.environ['PORT']))

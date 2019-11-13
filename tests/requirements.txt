@@ -7,4 +7,5 @@ Pillow
 qrcode
 pyzbar
 openpyxl
+zbar-py
 jsonpickle==1.2

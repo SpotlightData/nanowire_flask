@@ -3,6 +3,7 @@ README
 
 build
 dist
+
 *.egg-info
 *.egg/
 *.pyc
@@ -15,4 +16,8 @@ __pycache__
 
 # Compiled Documentation
 docs/_build
-example*
+
+# Virtualenv
+bin
+include
+lib
