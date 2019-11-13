@@ -15,9 +15,6 @@ from nanowire_flask.csv_tools import mount_csv_function
 
 
 def test_csv_function(df, variables):
-
-    print("RECEVED CSV REQUEST")
-
     result = str(df['uuid'])
 
     out = {"text": result,
