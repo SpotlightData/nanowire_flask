@@ -8,10 +8,21 @@ Created on Tue Aug 20 13:28:08 2019
 
 #nanowire_flask test file server
 
+import importlib
+import os
 
-import nanowire_flask as nf
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
-from nanowire_flask.file_tools import mount_file_function
+#print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+#print(os.path.join(dir_path, '../nanowire_flask'))
+#print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+
+#nanowire_flask =  importlib.import_module(os.path.join(dir_path, '../nanowire_flask'))
+
+import nanowire_flask.file_tools
+
+print(dir(nanowire_flask))
+print(dir(nanowire_flask.file_tools))
 
 def test_file_function(filename, variables):
     
@@ -26,6 +37,6 @@ def test_file_function(filename, variables):
     
     return out
 
-print("FOUND VERSION", nf.__version__)
+#print("FOUND VERSION", nanowire_flask.__version__)
 
-mount_file_function(test_file_function, port=5006)
+nanowire_flask.file_tools.mount_file_function(test_file_function, port=5006)

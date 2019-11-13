@@ -36,9 +36,16 @@ import uuid
 
 from nanowire_flask import scrub_newlines, usage_collection
 
+
+import logging
+
+log = logging.Logger('pronlem')
+
 def pullAndSave(url):
 
     name = '/{0}.pdf'.format(str(uuid.uuid1()))
+
+    log.warning("PULLING FROM URL")
     
     try:
         filename, _ = urllib.request.urlretrieve(url, name)
@@ -46,10 +53,14 @@ def pullAndSave(url):
     except Exception as exp:
         
         if '403' in str(exp):
+            log.warning("403 ERROR")
             raise Exception('403 ERROR')
         elif '404' in str(exp):
+            log.warning("404 ERROR")
             raise Exception('404 ERROR')
         else:
+            log.warning("UNKNOWN ERROR")
+            log.warning(exp)
             raise Exception('UNKNOWN ERROR')
 
     return filename

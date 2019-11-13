@@ -21,6 +21,8 @@ from pprint import pprint
 
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
+os.environ['PYTHON_DEBUG'] = 'True'
+
 
 #test the text processing tools with the requests library
 class text_server_test_case(unittest.TestCase):
@@ -914,25 +916,25 @@ with open("example.json", 'w') as f:
 
 print("STARTING TEXT SERVER")
 #start the text server
-run_text_cmd = 'python3 ./tests/text_server.py &'
+#run_text_cmd = 'python3 ./tests/text_server.py &'
 
-result = os.system(run_text_cmd)
+#result = os.system(run_text_cmd)
 
 print("STARTING IMAGE SERVER")
 
 run_img_cmd = 'python3 ./tests/image_server.py &'
 
-result = os.system(run_img_cmd)
+#result = os.system(run_img_cmd)
 
-run_csv_cmd = 'python3 ./tests/csv_server.py &'
+#run_csv_cmd = 'python3 ./tests/csv_server.py &'
 
-result = os.system(run_csv_cmd)
+#result = os.system(run_csv_cmd)
 
 print("STARTING CSV SERVER")
 
 run_JSON_cmd = 'python3 ./tests/json_server.py &'
 
-result = os.system(run_JSON_cmd)
+#result = os.system(run_JSON_cmd)
 
 print("STARTING JSON SERVER")
 
@@ -949,5 +951,5 @@ time.sleep(5)
 unittest.main()
 #text_thread.exit()
 
-for p in range(6):
+for p in range(7):
     os.system('fuser -k 500{0}/tcp'.format(p))

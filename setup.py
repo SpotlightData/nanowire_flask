@@ -8,7 +8,7 @@ Created on Wed Jan 23 11:18:21 2019
 
 #nanowire flask setup file
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages, find_packages
 
 
 VERSION = None
@@ -24,7 +24,7 @@ setup(
     url = 'https://github.com/SpotlightData/nanowire_flask',
     author='Stuart Bowe',
     author_email='stuart@spotlightdata.co.uk',
-    packages=find_packages(),
+    packages=find_namespace_packages(exclude=['tests'], include=['nanowire_flask.file_tools', 'nanowire_flask']),
     license='MIT',
     long_description=open('README.md').read(),
     long_destription_content_type='text/markdown',
