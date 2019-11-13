@@ -2,7 +2,9 @@
 
 echo "RUNNING NANOWIRE_FLASK UNIT TESTS"
 
-docker build -t nanowire_flask_unit_tests .
+cd ..
+
+docker build -t nanowire_flask_unit_tests --file ./tests.Dockerfile .
 
 #python3 text_server.py &
 

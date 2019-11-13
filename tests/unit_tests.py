@@ -844,6 +844,10 @@ class test_file_server(unittest.TestCase):
         out = os.popen(post_cmd).read()
  
         out = json.loads(out)
+
+        print("OUTPUT OF SEND FILE DIRECT FINE")
+        print(out)
+        print("+++++++++++++++++++++++++++++++")
         
        
         self.assertTrue('result' in out.keys())
@@ -900,37 +904,39 @@ with open("example.json", 'w') as f:
 
 
 #start the file hosting server
-httpd = HTTPServer(('localhost', 8001), SimpleHTTPRequestHandler)
+#httpd = HTTPServer(('localhost', 8001), SimpleHTTPRequestHandler)
     
-base_serve_thread = threading.Thread(name='s1', target=httpd.serve_forever, daemon = True)
+#base_serve_thread = threading.Thread(name='s1', target=httpd.serve_forever, daemon = True)
 
-base_serve_thread.start()
+#base_serve_thread.start()
+
+#time.sleep(1)
 
 print("STARTING TEXT SERVER")
 #start the text server
-run_text_cmd = 'python3 ./text_server.py &'
+run_text_cmd = 'python3 ./tests/text_server.py &'
 
 result = os.system(run_text_cmd)
 
 print("STARTING IMAGE SERVER")
 
-run_img_cmd = 'python3 ./image_server.py &'
+run_img_cmd = 'python3 ./tests/image_server.py &'
 
 result = os.system(run_img_cmd)
 
-run_csv_cmd = 'python3 ./csv_server.py &'
+run_csv_cmd = 'python3 ./tests/csv_server.py &'
 
 result = os.system(run_csv_cmd)
 
 print("STARTING CSV SERVER")
 
-run_JSON_cmd = 'python3 ./json_server.py &'
+run_JSON_cmd = 'python3 ./tests/json_server.py &'
 
 result = os.system(run_JSON_cmd)
 
 print("STARTING JSON SERVER")
 
-run_file_cmd = 'python3 ./file_server.py &'
+run_file_cmd = 'python3 ./tests/file_server.py &'
 
 result = os.system(run_file_cmd)
 
@@ -943,6 +949,5 @@ time.sleep(5)
 unittest.main()
 #text_thread.exit()
 
-
-
-
+for p in range(6):
+    os.system('fuser -k 500{0}/tcp'.format(p))

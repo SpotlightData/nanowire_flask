@@ -32,13 +32,25 @@ py_version = int(sys.version[0])
 
 import inspect
 
+import uuid
+
 from nanowire_flask import scrub_newlines, usage_collection
 
 def pullAndSave(url):
 
-    name = url.split("/")[-1]
-
-    filename, _ = urllib.request.urlretrieve(url, name)
+    name = '/{0}.pdf'.format(str(uuid.uuid1()))
+    
+    try:
+        filename, _ = urllib.request.urlretrieve(url, name)
+        
+    except Exception as exp:
+        
+        if '403' in str(exp):
+            raise Exception('403 ERROR')
+        elif '404' in str(exp):
+            raise Exception('404 ERROR')
+        else:
+            raise Exception('UNKNOWN ERROR')
 
     return filename
 
@@ -51,8 +63,6 @@ def run_file(r, app):
         variables_info = dict(r.args)
                 
         # convert string of image data to uint8
-        
-        #filename = pullAndSave(r.files['file'])
         try:
             filename = r.files['file'].filename
             r.files['file'].save(filename)
@@ -68,12 +78,21 @@ def run_file(r, app):
         except:
             raise Exception("VARIABLES JSON IS MALFORMED, PLEASE EXAMINE YOUR REQUEST AND RETRY")
 
-
         try:
             #extract the image from the sent url
             filename = pullAndSave(variables_info['contentUrl'])
-        except:
-            raise Exception("COULD NOT PULL FROM URL, PLEASE CHECK URL AND RETRY")
+        except Exception as exp:            
+            
+            if '403' in str(exp):
+                
+                raise Exception("COULD NOT PULL FROM URL DUE TO PERMISSIONS ERROR, PLEASE CHECK AND RETRY")
+            
+            elif '404' in str(exp):
+                
+                raise Exception("COULD NOT PULL FROM URL DUE TO 404 ERROR, PLEASE CHECK AND RETRY")
+                
+            else:
+                raise Exception("COULD NOT PULL FROM URL, PLEASE CHECK URL AND RETRY")
             
         variables_info.pop('contentUrl', None)
 
@@ -85,13 +104,9 @@ def run_file(r, app):
         out_predictions = app.config['function'](filename)
 
     os.remove(filename)
-        
-        
+          
     if not isinstance(out_predictions, dict):
         raise Exception("FUNCTION MUST RETURN A DICTIONARY")
-
-    
-    #print("Took {0:0.2f} seconds".format(time.time()-start_time))
     
     return out_predictions
 
@@ -106,7 +121,6 @@ def check_file_function_is_valid(function):
         
     else:
         return True
-
 
 class mount_file_function(object):
     
@@ -203,8 +217,7 @@ class filesAPI(View):
             return Response(response=response_pic, status=200, mimetype="application/json")
         
         except Exception as exp:
-            
-
+        
             response = {'status':'failure', 'error':str(exp)}
             
             #if we're in debug mode then return a full traceback
