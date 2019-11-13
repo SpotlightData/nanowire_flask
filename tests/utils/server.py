@@ -83,3 +83,9 @@ class ServerTest(unittest.TestCase):
         os.kill(self.server.pid, signal.SIGTERM)
         self.server.wait()
         self.server.stdout.close()
+
+    def send_json(self, data):
+        d = json.dumps(data)
+        heads = {"Content-Type": "application/json"}
+        r = requests.post(self.url, headers=heads, data=d)
+        return r.json()
