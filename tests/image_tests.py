@@ -26,131 +26,94 @@ class image_server_test_case(ServerTest):
 
         self.assertTrue(out['text'] == "Example image")
 
-    # def test_from_file_jpg(self):
+    def test_from_file_jpg(self):
 
-    #     text_target = 'http://0.0.0.0:5001/model/predict'
+        with open(lfile('./example_qr_code.jpg'), 'rb') as f:
+            files = {'image': ('./example_qr_code.jpg', f)}
 
-    #     files = {'image': ('./example_qr_code.jpg',
-    #                        open('./example_qr_code.jpg', 'rb'))}
+            r = requests.post(self.url + '?threshold=0.5', files=files)
 
-    #     r = requests.post(text_target + '?threshold=0.5', files=files)
+            out = r.json()
 
-    #     out = r.json()
+            self.assertTrue('text' in out.keys())
 
-    #     self.assertTrue('text' in out.keys())
+            self.assertTrue('variables' in out.keys())
 
-    #     self.assertTrue('variables' in out.keys())
+            self.assertTrue('shape' in out.keys())
 
-    #     self.assertTrue('shape' in out.keys())
+            self.assertTrue(out['text'] == "Example image")
 
-    #     self.assertTrue(out['text'] == "Example image")
+    def test_from_file_jpeg(self):
 
-    # def test_from_file_jpeg(self):
+        with open(lfile('./example_qr_code.jpeg'), 'rb') as f:
+            files = {'image': ('./example_qr_code.jpeg', f)}
 
-    #     text_target = 'http://0.0.0.0:5001/model/predict'
+            r = requests.post(self.url + '?threshold=0.5', files=files)
 
-    #     files = {'image': ('./example_qr_code.jpeg',
-    #                        open('./example_qr_code.jpeg', 'rb'))}
+            out = r.json()
 
-    #     r = requests.post(text_target + '?threshold=0.5', files=files)
+            self.assertTrue('text' in out.keys())
 
-    #     out = r.json()
+            self.assertTrue('variables' in out.keys())
 
-    #     self.assertTrue('text' in out.keys())
+            self.assertTrue('shape' in out.keys())
 
-    #     self.assertTrue('variables' in out.keys())
+            self.assertTrue(out['text'] == "Example image")
 
-    #     self.assertTrue('shape' in out.keys())
+    def test_from_file_bmp(self):
 
-    #     self.assertTrue(out['text'] == "Example image")
+        with open(lfile('./example_qr_code.bmp'), 'rb') as f:
+            files = {'image': ('./example_qr_code.bmp', f)}
 
-    # def test_from_file_bmp(self):
+            r = requests.post(self.url + '?threshold=0.5', files=files)
 
-    #     text_target = 'http://0.0.0.0:5001/model/predict'
+            out = r.json()
 
-    #     files = {'image': ('./example_qr_code.bmp',
-    #                        open('./example_qr_code.bmp', 'rb'))}
+            self.assertTrue('text' in out.keys())
 
-    #     r = requests.post(text_target + '?threshold=0.5', files=files)
+            self.assertTrue('variables' in out.keys())
 
-    #     out = r.json()
+            self.assertTrue('shape' in out.keys())
 
-    #     self.assertTrue('text' in out.keys())
+            self.assertTrue(out['text'] == "Example image")
 
-    #     self.assertTrue('variables' in out.keys())
+    def test_from_server_png(self):
 
-    #     self.assertTrue('shape' in out.keys())
+        out = self.send_json({"contentUrl": self.file_url('example_qr_code.png'),
+                              "clean_text": 0})
 
-    #     self.assertTrue(out['text'] == "Example image")
+        self.assertTrue('text' in out.keys())
 
-    # def test_from_server_png(self):
+        self.assertTrue('variables' in out.keys())
 
-    #     text_target = 'http://0.0.0.0:5001/model/predict'
+        self.assertTrue('shape' in out.keys())
 
-    #     image_url = 'http://0.0.0.0:8001/example_qr_code.png'
+        self.assertTrue(out['text'] == "Example image")
 
-    #     d = json.dumps({"contentUrl": image_url,
-    #                     "clean_text": 0})
+    def test_from_server_jpg(self):
 
-    #     heads = {"Content-Type": "application/json"}
+        out = self.send_json({"contentUrl": self.file_url('example_qr_code.jpg'),
+                              "clean_text": 0})
 
-    #     r = requests.post(text_target, headers=heads, data=d)
+        self.assertTrue('text' in out.keys())
 
-    #     out = r.json()
+        self.assertTrue('variables' in out.keys())
 
-    #     self.assertTrue('text' in out.keys())
+        self.assertTrue('shape' in out.keys())
 
-    #     self.assertTrue('variables' in out.keys())
+        self.assertTrue(out['text'] == "Example image")
 
-    #     self.assertTrue('shape' in out.keys())
+    def test_from_server_jpeg(self):
+        out = self.send_json({"contentUrl": self.file_url('example_qr_code.jpeg'),
+                              "clean_text": 0})
 
-    #     self.assertTrue(out['text'] == "Example image")
+        self.assertTrue('text' in out.keys())
 
-    # def test_from_server_jpg(self):
+        self.assertTrue('variables' in out.keys())
 
-    #     text_target = 'http://0.0.0.0:5001/model/predict'
+        self.assertTrue('shape' in out.keys())
 
-    #     image_url = 'http://0.0.0.0:8001/example_qr_code.jpg'
-
-    #     d = json.dumps({"contentUrl": image_url,
-    #                     "clean_text": 0})
-
-    #     heads = {"Content-Type": "application/json"}
-
-    #     r = requests.post(text_target, headers=heads, data=d)
-
-    #     out = r.json()
-
-    #     self.assertTrue('text' in out.keys())
-
-    #     self.assertTrue('variables' in out.keys())
-
-    #     self.assertTrue('shape' in out.keys())
-
-    #     self.assertTrue(out['text'] == "Example image")
-
-    # def test_from_server_jpeg(self):
-
-    #     text_target = 'http://0.0.0.0:5001/model/predict'
-
-    #     image_url = 'http://0.0.0.0:8001/example_qr_code.jpeg'
-
-    #     d = json.dumps({"contentUrl": image_url,
-    #                     "clean_text": 0})
-
-    #     heads = {"Content-Type": "application/json"}
-
-    #     r = requests.post(text_target, headers=heads, data=d)
-
-    #     out = r.json()
-
-    #     self.assertTrue('text' in out.keys())
-
-    #     self.assertTrue('variables' in out.keys())
-
-    #     self.assertTrue('shape' in out.keys())
-
-    #     self.assertTrue(out['text'] == "Example image")
+        self.assertTrue(out['text'] == "Example image")
 
     # def test_from_server_bmp(self):
 
