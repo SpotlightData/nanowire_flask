@@ -115,29 +115,15 @@ class image_server_test_case(ServerTest):
 
         self.assertTrue(out['text'] == "Example image")
 
-    # def test_from_server_bmp(self):
+    def test_from_server_bmp(self):
 
-    #     text_target = 'http://0.0.0.0:5001/model/predict'
+        d = self.send_json({"contentUrl": self.file_url('example_qr_code.bmp'),
+                            "clean_text": 0})
 
-    #     image_url = 'http://0.0.0.0:8001/example_qr_code.bmp'
+        self.assertTrue('text' in out.keys())
 
-    #     d = json.dumps({"contentUrl": image_url,
-    #                     "clean_text": 0})
+        self.assertTrue('variables' in out.keys())
 
-    #     heads = {"Content-Type": "application/json"}
+        self.assertTrue('shape' in out.keys())
 
-    #     r = requests.post(text_target, headers=heads, data=d)
-
-    #     out = r.json()
-
-    #     print("FROM SERVER BMP")
-    #     print(out)
-    #     print("+++++++++++++++++++++++++++++")
-
-    #     self.assertTrue('text' in out.keys())
-
-    #     self.assertTrue('variables' in out.keys())
-
-    #     self.assertTrue('shape' in out.keys())
-
-    #     self.assertTrue(out['text'] == "Example image")
+        self.assertTrue(out['text'] == "Example image")
