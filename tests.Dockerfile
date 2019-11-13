@@ -16,7 +16,7 @@ ADD ./ .
 
 #ADD setup.py /
 
-RUN pip3 debug install .
+RUN pip3 install .
 
 CMD ["python", "/tests/unit_tests.py"]
 #CMD ["python", "json_server.py"]
