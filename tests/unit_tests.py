@@ -951,5 +951,7 @@ time.sleep(5)
 unittest.main()
 #text_thread.exit()
 
+print("KILLING THE SERVERS")
+
 for p in range(7):
     os.system('fuser -k 500{0}/tcp'.format(p))

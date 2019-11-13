@@ -43,7 +43,7 @@ log = logging.Logger('pronlem')
 
 def pullAndSave(url):
 
-    name = '/{0}.pdf'.format(str(uuid.uuid1()))
+    name = '/tmp/{0}.pdf'.format(str(uuid.uuid1()))
 
     log.warning("PULLING FROM URL")
     
