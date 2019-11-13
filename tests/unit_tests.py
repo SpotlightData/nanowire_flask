@@ -21,6 +21,8 @@ from pprint import pprint
 
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
+import functools
+
 os.environ['PYTHON_DEBUG'] = 'True'
 
 
@@ -52,8 +54,8 @@ class text_server_test_case(unittest.TestCase):
     def test_text_file_example(self):
         
         text_target = 'http://0.0.0.0:5000/model/predict'
-        
-        files = {'doc': ('/test_text2.txt', open('/test_text2.txt', 'rb'))}
+
+        files = {'doc': ('./tests/test_text2.txt', open('./tests/test_text2.txt', 'rb'))}
         
         r = requests.post(text_target + '?threshold=0.1', files=files)
         
@@ -65,7 +67,7 @@ class text_server_test_case(unittest.TestCase):
         
         self.assertTrue('threshold' in out['variables'].keys())
         
-        with open('/test_text2.txt', "r") as f:
+        with open('./tests/test_text2.txt', "r") as f:
             t = f.read()
         
         self.assertTrue(out['text'] == t)
@@ -89,7 +91,7 @@ class text_server_test_case(unittest.TestCase):
         self.assertTrue('text' in out.keys())
         self.assertTrue('variables' in out.keys())
         
-        with open('/test_text3.txt', "r") as f:
+        with open('./tests/test_text3.txt', "r") as f:
             t = f.read()
         
         self.assertTrue(out['text'] == t)
@@ -256,6 +258,10 @@ class image_server_test_case(unittest.TestCase):
         r = requests.post(text_target, headers = heads, data=d)
         
         out = r.json()
+
+        print("FROM SERVER BMP")
+        print(out)
+        print("+++++++++++++++++++++++++++++")
 
         self.assertTrue('text' in out.keys())
         
@@ -846,11 +852,6 @@ class test_file_server(unittest.TestCase):
         out = os.popen(post_cmd).read()
  
         out = json.loads(out)
-
-        print("OUTPUT OF SEND FILE DIRECT FINE")
-        print(out)
-        print("+++++++++++++++++++++++++++++++")
-        
        
         self.assertTrue('result' in out.keys())
         self.assertTrue(out['result'] == 'Hello, This is a test!')
@@ -910,13 +911,26 @@ print("KILLING THE SERVERS")
 for p in range(7):
     os.system('fuser -k 500{0}/tcp'.format(p))
 
+os.system('fuser -k 8001/tcp')
 
-#start the file hosting server
-#httpd = HTTPServer(('localhost', 8001), SimpleHTTPRequestHandler)
-    
-#base_serve_thread = threading.Thread(name='s1', target=httpd.serve_forever, daemon = True)
+working_dir = os.getcwd()
 
-#base_serve_thread.start()
+if working_dir[-5:] == 'tests':
+
+    os.system('python3 -m http.server 8001 &')
+
+    os.chdir('../')
+
+else:
+
+    os.chdir('./tests')
+
+    os.system('python3 -m http.server 8001 &')
+
+    os.chdir('../')
+
+
+
 
 #time.sleep(1)
 
