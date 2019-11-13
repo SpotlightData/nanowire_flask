@@ -63,6 +63,9 @@ class ServerTest(unittest.TestCase):
         os.kill(cls.file_server.pid, signal.SIGTERM)
         cls.file_server.wait()
 
+    def file_url(self, file):
+        return self.file_server_url + '/' + file
+
     def start_server(self, file):
         self.port = get_open_port()
         child_env = os.environ.copy()
