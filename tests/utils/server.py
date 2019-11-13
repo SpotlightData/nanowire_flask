@@ -5,7 +5,7 @@ import signal
 
 import unittest
 
-directory = os.path.realpath(__file__)
+directory = os.path.dirname(os.path.realpath(__file__))
 
 
 def get_open_port():
@@ -33,7 +33,7 @@ class ServerTest(unittest.TestCase):
     def setUpClass(cls):
         # Start file server
         cls.file_server_port = get_open_port()
-        cls.file_server_url = 'http://0.0.0.0:{}/'.format(
+        cls.file_server_url = 'http://0.0.0.0:{}'.format(
             str(cls.file_server_port))
         cls.file_server = run_child(
             ["python3",
@@ -59,6 +59,6 @@ class ServerTest(unittest.TestCase):
         print("Running {} on {}".format(file, self.url))
 
     def tearDown(self):
-        print("Killing {}".format(self.url))
+        print("Killing server {}".format(self.url))
         os.kill(self.server.pid, signal.SIGTERM)
         self.server.wait()
