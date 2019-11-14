@@ -25,56 +25,6 @@ import functools
 
 os.environ['PYTHON_DEBUG'] = 'True'
 
-
-#test the text processing tools with the requests library
-       
-    
-#test the image processing tools with the requests library
-        
-#test the JSON processing tools with the requests library
-class JSON_server_test_case(unittest.TestCase):
-    
-    def test_from_text_JSON(self):
-        
-        text_target = 'http://0.0.0.0:5003/model/predict'
-
-        
-        d = json.dumps({'example':'of', 
-                'a':[1,2,3],
-                'json':{'to':'be', 'loaded':'in'}
-                })
-        
-        heads ={"Content-Type":"application/json"}
-        
-        r = requests.post(text_target, headers = heads, data=d)
-        
-        out = r.json()
-
-        self.assertTrue(out['inputJSON']['example'] == 'of')
-        self.assertTrue(out['inputJSON']['json']['to'] == 'be')
-        self.assertTrue(len(out['inputJSON']['a']) == 3)
-        
-    def test_from_server_JSON(self):
-        
-        text_target = 'http://0.0.0.0:5003/model/predict'
-
-        json_url = 'http://0.0.0.0:8001/example.json'
-        
-        d = json.dumps({"contentUrl":json_url,
-                "clean_text":0})
-        
-        heads ={"Content-Type":"application/json"}
-        
-        r = requests.post(text_target, headers = heads, data=d)
-        
-        out = r.json()
-
-        self.assertTrue(out['inputJSON']['example'] == 'of')
-        self.assertTrue(out['inputJSON']['json']['to'] == 'be')
-        self.assertTrue(len(out['inputJSON']['a']) == 3)
-
-
-
 #test the text processing tools with curl requests run in a shell
 class test_text_server_test_case_cmd_line(unittest.TestCase):
     
