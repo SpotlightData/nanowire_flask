@@ -24,65 +24,6 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 import functools
 
 os.environ['PYTHON_DEBUG'] = 'True'
-
-#test the text processing tools with curl requests run in a shell
-class test_text_server_test_case_cmd_line(unittest.TestCase):
-    
-    def test_text_cmd_line_send_txt_direct(self):
-
-        
-        text_target = 'http://0.0.0.0:5000/model/predict'
-        
-        
-        post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{\"text\":\"Example of text.\", \"threshold\":0.5}'"
-        
-        post_cmd += ' '
-        post_cmd += text_target
-        
-        out = os.popen(post_cmd).read()
-        
-        out = json.loads(out)
-        
-        self.assertTrue('text' in out.keys())
-        self.assertTrue('variables' in out.keys())
-        self.assertTrue(out['text'] == "Example of text.")
-        
-        
-    def test_text_cmd_line_malformed_cmd(self):
-
-        
-        text_target = 'http://0.0.0.0:5000/model/predict'
-        
-        
-        post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{\"text\"::\"Example of text.\", \"threshold\":0.5}'"
-        
-        post_cmd += ' '
-        post_cmd += text_target
-        
-        out = os.popen(post_cmd).read()
-        
-        out = json.loads(out)
-
-        self.assertTrue(out['error']=='VARIABLES JSON IS MALFORMED, PLEASE EXAMINE YOUR REQUEST AND RETRY')
-        
-    
-    def test_text_cmd_line_malformed_server_address(self):
-        
-        text_target = 'http://0.0.0.0:5000/model/predict'
-        
-        text_file = 'http://0.0.0.0:1221/test_text1.txt'
-        
-        post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{\"contentUrl\":\"%s\", \"threshold\":0.5}'"%text_file
-        
-        post_cmd += ' '
-        post_cmd += text_target
-        
-        out = os.popen(post_cmd).read()
-        
-        out = json.loads(out)
-
-        self.assertTrue(out['error'] == "CANNOT CONNECT TO FILE URL, CHECK FILE URL AND TRY AGAIN")
-
 class test_image_server_test_case_cmd_line(unittest.TestCase):
     
     def test_img_cmd_line_send_file_direct(self):
