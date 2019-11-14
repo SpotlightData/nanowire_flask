@@ -91,3 +91,11 @@ class ServerTest(unittest.TestCase):
         heads = {"Content-Type": "application/json"}
         r = requests.post(self.url, headers=heads, data=d)
         return r.json()
+
+    def send_json_curl(self, json_str):
+        post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{}' {}".format(
+            json_str, self.url)
+        proc = os.popen(post_cmd)
+        out = json.loads(proc.read())
+        proc.close()
+        return out
