@@ -24,55 +24,7 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 import functools
 
 os.environ['PYTHON_DEBUG'] = 'True'
-class test_image_server_test_case_cmd_line(unittest.TestCase):
-    
-    def test_img_cmd_line_send_file_direct(self):
-        
-        img_target = 'http://0.0.0.0:5001/model/predict'
-        
-        post_cmd = 'curl -F "image=@./example_qr_code.png" -XPOST ' + img_target
-        
-        out = os.popen(post_cmd).read()
- 
-        out = json.loads(out)
-        
-        self.assertTrue('text' in out.keys())
-        self.assertTrue('variables' in out.keys())
-        self.assertTrue(out['text'] == "Example image")
 
-    def test_img_cmd_line_send_file_direct_malformed_json(self):
-        
-        img_target = 'http://0.0.0.0:5001/model/predict'
-        
-        post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{\"contentUrl\"::\"urlExample, \"threshold\":0.5}'"
-            
-        post_cmd += ' '
-        post_cmd += img_target
-        
-        out = os.popen(post_cmd).read()
- 
-        out = json.loads(out)
-
-        self.assertTrue('error' in out.keys())
-        self.assertTrue(out['error'] == 'VARIABLES JSON IS MALFORMED, PLEASE EXAMINE YOUR REQUEST AND RETRY')
-        
-    def test_img_cmd_line_send_file_direct_malformed_url(self):
-        
-        img_target = 'http://0.0.0.0:5001/model/predict'
-        
-        post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{\"contentUrl\":\"http://0.0.0.0:9999:/blah/blak\"}'"
-            
-        post_cmd += ' '
-        post_cmd += img_target
-        
-        out = os.popen(post_cmd).read()
- 
-        out = json.loads(out)
-
-        self.assertTrue('error' in out.keys())
-        self.assertTrue(out['error'] == 'COULD NOT PULL FROM URL, PLEASE CHECK URL AND RETRY')
-
-        
 class test_csv_server_cmd_line(unittest.TestCase):
     
     def test_csv_cmd_line_sent_file_direct(self):

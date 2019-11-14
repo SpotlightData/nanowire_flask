@@ -5,9 +5,12 @@ from utils.file import lfile
 from utils.server import ServerTest
 
 
-class image_server_test_case(ServerTest):
+class ImageServerTests(ServerTest):
     def setUp(self):
         self.start_server('image_server.py')
+
+
+class image_server_test_case(ImageServerTests):
 
     def test_from_file_png(self):
         f = open(lfile('./example_qr_code.png'), 'rb')
@@ -127,3 +130,28 @@ class image_server_test_case(ServerTest):
         self.assertTrue('shape' in out.keys())
 
         self.assertTrue(out['text'] == "Example image")
+
+
+class test_image_server_test_case_cmd_line(ImageServerTests):
+
+    def test_img_cmd_line_send_file_direct(self):
+        out = self.send_file_curl('example_qr_code.png')
+
+        self.assertTrue('text' in out.keys())
+        self.assertTrue('variables' in out.keys())
+        self.assertTrue(out['text'] == "Example image")
+
+    def test_img_cmd_line_send_file_direct_malformed_json(self):
+        out = self.send_json_curl(
+            '{\"contentUrl\"::\"urlExample, \"threshold\":0.5}')
+        self.assertTrue('error' in out.keys())
+        self.assertTrue(
+            out['error'] == 'VARIABLES JSON IS MALFORMED, PLEASE EXAMINE YOUR REQUEST AND RETRY')
+
+    def test_img_cmd_line_send_file_direct_malformed_url(self):
+        out = self.send_json_curl(
+            '{\"contentUrl\":\"http://0.0.0.0:9999:/blah/blak\"}')
+
+        self.assertTrue('error' in out.keys())
+        self.assertTrue(
+            out['error'] == 'COULD NOT PULL FROM URL, PLEASE CHECK URL AND RETRY')
