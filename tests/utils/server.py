@@ -7,6 +7,7 @@ import os
 import signal
 import time
 
+from utils.file import lfile
 import unittest
 
 directory = os.path.dirname(os.path.realpath(__file__))
@@ -95,6 +96,14 @@ class ServerTest(unittest.TestCase):
     def send_json_curl(self, json_str):
         post_cmd = "curl -X POST -H \"Content-Type:application/json\" -d '{}' {}".format(
             json_str, self.url)
+        proc = os.popen(post_cmd)
+        out = json.loads(proc.read())
+        proc.close()
+        return out
+
+    def send_file_curl(self, file_name):
+        post_cmd = 'curl -F "image=@{}" -XPOST {}'.format(
+            lfile(file_name), self.url)
         proc = os.popen(post_cmd)
         out = json.loads(proc.read())
         proc.close()
