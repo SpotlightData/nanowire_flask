@@ -60,18 +60,18 @@ class text_server_test_case(TextServerTest):
 class test_text_server_test_case_cmd_line(TextServerTest):
 
     def test_text_cmd_line_send_txt_direct(self):
-            out = self.send_json_curl(
-                '{\"text\":\"Example of text.\", \"threshold\":0.5}')
-            self.assertTrue('text' in out.keys())
-            self.assertTrue('variables' in out.keys())
-            self.assertTrue(out['text'] == "Example of text.")
+        out = self.send_json_curl(
+            '{\"text\":\"Example of text.\", \"threshold\":0.5}')
+        self.assertTrue('text' in out.keys())
+        self.assertTrue('variables' in out.keys())
+        self.assertTrue(out['text'] == "Example of text.")
 
-        def test_text_cmd_line_malformed_cmd(self):
-            out = self.send_json_curl(
-                '{\"text\"::\"Example of text.\", \"threshold\":0.5}')
+    def test_text_cmd_line_malformed_cmd(self):
+        out = self.send_json_curl(
+            '{\"text\"::\"Example of text.\", \"threshold\":0.5}')
 
-            self.assertTrue(
-                out['error'] == 'VARIABLES JSON IS MALFORMED, PLEASE EXAMINE YOUR REQUEST AND RETRY')
+        self.assertTrue(
+            out['error'] == 'VARIABLES JSON IS MALFORMED, PLEASE EXAMINE YOUR REQUEST AND RETRY')
 
     def test_text_cmd_line_malformed_server_address(self):
         out = self.send_json_curl('{"contentUrl": "%s", "threshold": 0.5}' %
