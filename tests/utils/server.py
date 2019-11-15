@@ -46,10 +46,11 @@ class ServerTest(unittest.TestCase):
     def setUpClass(cls):
         # Start file server
         cls.file_server_port = get_open_port()
+        #raise Exception(cls.file_server_port)
         cls.file_server_url = 'http://0.0.0.0:{}'.format(
             str(cls.file_server_port))
         cls.file_server = run_child(
-            ["python3",
+            ["python3.7",
              "-u",
              "-m",
              "http.server",
@@ -57,6 +58,8 @@ class ServerTest(unittest.TestCase):
              os.path.join(directory, '../files'),
              str(cls.file_server_port)], os.environ.copy())
         read_till(cls.file_server, "Serving HTTP")
+        time.sleep(1)
+
         # print("Running file server on {}".format(cls.file_server_url))
 
     @classmethod
@@ -76,6 +79,8 @@ class ServerTest(unittest.TestCase):
         self.server = start_server(file, str(self.port))
         self.url = 'http://0.0.0.0:{}/model/predict'.format(str(self.port))
         read_till(self.server, "Serving")
+        time.sleep(1)
+
         # print("Running {} on {}".format(file, self.url))
 
     def setUp(self):
