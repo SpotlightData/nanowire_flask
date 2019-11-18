@@ -31,4 +31,4 @@ def test_text_function(text, variables):
 
 print("FOUND VERSION", nf.__version__)
 
-mount_text_function(test_text_function, port=int(os.environ['PORT']))
+mount_text_function(test_text_function, port=5000)

@@ -8,4 +8,5 @@ qrcode
 pyzbar
 openpyxl
 zbar-py
+pyzbar
 jsonpickle==1.2

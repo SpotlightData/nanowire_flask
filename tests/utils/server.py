@@ -50,7 +50,7 @@ class ServerTest(unittest.TestCase):
         cls.file_server_url = 'http://0.0.0.0:{}'.format(
             str(cls.file_server_port))
         cls.file_server = run_child(
-            ["python3.7",
+            ["python3",
              "-u",
              "-m",
              "http.server",

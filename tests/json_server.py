@@ -30,4 +30,4 @@ def test_json_function(inputJSON, variables):
 
 print("FOUND VERSION", nf.__version__)
 
-mount_json_function(test_json_function, port=int(os.environ['PORT']))
+mount_json_function(test_json_function, port=5003)

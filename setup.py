@@ -8,19 +8,20 @@ Created on Wed Jan 23 11:18:21 2019
 
 #nanowire flask setup file
 
-from setuptools import setup, find_namespace_packages, find_packages
+from setuptools import setup, find_packages
 
 
 VERSION = None
 with open("./nanowire_flask/VERSION") as f:
     VERSION = f.read()
 
-includes = ['nanowire_flask', 
-            'nanowire_flask.text_tools', 
-            'nanowire_flask.csv_tools', 
-            'nanowire_flask.file_tools',
-            'nanowire_flask.image_tools',
-            'nanowire_flask.json_tools']
+#includes = ['nanowire_flask', 
+#            'nanowire_flask.text_tools', 
+#            'nanowire_flask.csv_tools', 
+#            'nanowire_flask.file_tools',
+#            'nanowire_flask.image_tools',
+#            'nanowire_flask.json_tools',
+#            'nanowire_flask.VERSION']
 
 setup(
     name='nanowire_flask',
@@ -30,7 +31,7 @@ setup(
     url = 'https://github.com/SpotlightData/nanowire_flask',
     author='Stuart Bowe',
     author_email='stuart@spotlightdata.co.uk',
-    packages=find_namespace_packages(exclude=['tests'], include=includes),
+    packages=find_packages(),
     license='MIT',
     long_description=open('README.md').read(),
     long_destription_content_type='text/markdown',

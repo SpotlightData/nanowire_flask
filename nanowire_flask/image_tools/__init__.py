@@ -76,7 +76,7 @@ def run_image(r, app):
     else:
         out_predictions = app.config['function'](im)
         
-        
+    
     if not isinstance(out_predictions, dict):
         raise Exception("FUNCTION MUST RETURN A DICTIONARY")
 

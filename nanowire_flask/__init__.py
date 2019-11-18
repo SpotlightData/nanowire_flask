@@ -57,13 +57,29 @@ logger.setLevel(level=logging.DEBUG)
 
 mod_path = os.path.abspath(__path__[0])
 
-files = os.listdir(os.path.join(mod_path, '../'))
+files = os.listdir(os.path.join(mod_path, '../../'))
 
 files[:] = [x for x in files if 'nanowire_flask' in x]
 
 files[:] = [x for x in files if x != 'nanowire_flask']
 
-__version__ = re.findall(r'([0-9]*\.[0-9]*\.[0-9]*)', files[0])[0]
+print("FILES")
+print(mod_path)
+print(files)
+print(os.listdir(mod_path))
+print("+++++++++++++++++++++++++++++++++")
+
+try:
+    __version__ = re.findall(r'([0-9]*\.[0-9]*\.[0-9]*)', files[0])[0]
+except:
+    if 'VERSION' in os.listdir(mod_path):
+        with open(os.path.join(mod_path, 'VERSION'), 'r') as f:
+            __version__ = f.read()
+    else:
+        __version__ = 'unknown'
+
+
+print("NANOWIRE_FLASK VERSION", __version__)
 
 ###################
 ### Admin tools ###

@@ -1,0 +1,3 @@
+python setup.py sdist_wheel
+
+twine upload dict/*

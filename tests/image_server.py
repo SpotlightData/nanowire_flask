@@ -33,4 +33,4 @@ def test_image_function(img, variables):
 
 print("FOUND VERSION", nf.__version__)
 
-mount_Image_function(test_image_function, port=int(os.environ['PORT']))
+mount_Image_function(test_image_function, port=5001)
