@@ -336,6 +336,10 @@ class csv_server_test_case(unittest.TestCase):
         heads ={"Content-Type":"application/json"}
         
         r = requests.post(text_target, headers = heads, data=d)
+
+        print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+        print(json.dumps(r.json()))
+        print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
         
         out = r.json()
         

@@ -41,11 +41,11 @@ setup(
     },
     data_files = [('', ['./nanowire_flask/VERSION'])],
     install_requires=[
-	'Pillow>=5.4.1',
+	'Pillow>=8.1.2',
 	'requests>=2.21.0',
 	'Flask-API>=1.1',
 	'jsonpickle>=1.1',
 	'psutil>=5.5.0',
-    'pandas>=0.23.4',
+    'pandas>=1.2.3',
     'xlrd>=1.0.0']
 )
